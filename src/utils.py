@@ -140,6 +140,9 @@ def get_prediction_sigmoid(data: pd.DataFrame, fitted_params: dict, n_prediction
         # --- keep parameters values of each quantiles --- #
         paramters_values_sigmoid[quantile] = [x0, K, r]
 
+    fitted_sigmoid_df["derivative"] = np.quantile(fitted_params['r'], 0.5) * fitted_sigmoid_df["50%"] * \
+                                      (1 - fitted_sigmoid_df["50%"] / np.quantile(fitted_params['K'], 0.5))
+
     return fitted_sigmoid_df, paramters_values_sigmoid
 
 
