@@ -85,7 +85,7 @@ def generate_plot(data, df_all_prediction):
     p.yaxis.formatter = bkm.formatters.NumeralTickFormatter(format='0,0')
     p.xaxis.formatter = bkm.formatters.DatetimeTickFormatter(days=['%d/%m', '%d%a'], months=['%m/%Y', '%b %Y'])
 
-    p.toolbar.active_scroll = p.select_one(bkm.WheelZoomTool)
+    # p.toolbar.active_scroll = p.select_one(bkm.WheelZoomTool)
 
     p.extra_y_ranges = {"Number of deaths": bkm.Range1d(start=-0.05 * get_country(data, country).new_cases.max(),
                                                         end=1.1 * get_country(data, country).new_cases.max())}
