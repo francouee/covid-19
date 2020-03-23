@@ -27,7 +27,8 @@ data['date'] = data.date.apply(pd.to_datetime)
 data['date_str'] = data.date.apply(lambda x: x.strftime('%d/%m/%Y'))
 
 df_all_prediction = pd.DataFrame()
-countries = ["France", "Italy", 'South Korea', "China", "Japan", "Spain", "United Kingdom", "Germany"]
+countries = ["France", "Italy", 'South Korea', "China", "Japan", "Spain", "United Kingdom",
+             "Germany", "Denmark", "Sweden", "Norway", "Netherlands", "Australia", "Austria"]
 
 
 # ---- compute predictions data ---- #

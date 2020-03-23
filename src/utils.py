@@ -162,3 +162,5 @@ def plot_params_distribution(params):
     figure = sns.pairplot(param_df, kind='reg', diag_kind='kde', height=3)
 
     return figure
+
+
