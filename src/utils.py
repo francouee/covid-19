@@ -3,6 +3,8 @@ import numpy as np
 from scipy.optimize import minimize
 from tqdm import tqdm
 import seaborn as sns
+from sklearn.base import BaseEstimator
+import datetime
 
 
 def get_country(data: pd.DataFrame, location: str):
@@ -18,6 +20,51 @@ def get_country_and_min_count(data: pd.DataFrame, location: str, min_count_total
 def get_min_count(data: pd.DataFrame, min_count_total=15):
     """return the projection of the DataFrame with the selected country"""
     return data.loc[(data.total_cases >= min_count_total)]
+
+
+def data_china_smoothing(data: pd.DataFrame, n_days_smoothing: int, n_cases_true=4000):
+    """
+    smooth new cases data from 2020-02-13 where the covid 19 cases
+    definition changed in china
+
+    Parameters
+    ----------
+    data: Covid 19 dataset
+    n_days_smoothing: number of days the 2020-02-13 should be smoothed
+    n_cases_true: Number of true cases the count definition changed
+    """
+
+    data_china = get_country(data, "China").copy()
+    date_change_count = "2020-02-13"
+    date_begin_smooth = datetime.datetime(2020, 2, 13) - datetime.timedelta(days=n_days_smoothing - 1)
+
+    time_mask = (data_china.date >= date_begin_smooth) & (data_china.date < date_change_count)
+    data_to_change = data_china[time_mask].copy()
+
+    new_cases_to_smooth = data_china.loc[data_china.date == date_change_count, "new_cases"].values[0] - n_cases_true
+
+
+    # --- remove new_cases to total_cases to add smoothed new_cases afterward --- #
+    data_to_change["total_cases"] -= np.cumsum(data_to_change["new_cases"])
+
+    # --- Smooth new_cases over the period  --- #
+    index = np.arange(1, n_days_smoothing, 1)
+    data_to_change["new_cases"] += index * new_cases_to_smooth / np.sum(index)
+    data_to_change["new_cases"] = data_to_change["new_cases"].astype("int16")
+
+
+    data_to_change["total_cases"] += np.cumsum(data_to_change["new_cases"])
+
+    # --- add smoothed data ---- #
+
+    data_china[time_mask] = data_to_change
+    data_china.loc[data_china.date == date_change_count, "new_cases"] = n_cases_true
+    data_china["location"] = "China Smooth"
+
+    data = pd.concat([data, data_china])
+
+    return data
+
 
 
 def sigmoid(x, x0, K, r):
@@ -39,128 +86,199 @@ def sigmoid(x, x0, K, r):
     return K / (1 + np.exp(-r * (x - x0)))
 
 
-def fit_sigmoid_boostrap(data: pd.DataFrame, n_bootstrap=100, proba=True):
+def two_mode_growth(x, x0, K, r1, r2, y, t1):
     """
-    Compute the optimum parameters to fit a generalized logistic function
-    on the data and estimate the paramters distribution with boostrap
+    Compute the values of a generalized logistic function defined by x0, K, a and r
 
     Parameters
     ----------
-    data : pd.DataFrame containing the values to fit
+    x: input function
+    x0: lag of the generalized logistic function
+    K: asymptote of the generalized logistic function
+    r1: generalized logistic function parameter
+
+    Returns
+    -------
+    image of x with the generalized logistic function
+    """
+
+    return (1 - y) * np.exp(r1 * x) + \
+           y * (np.exp(r1 * t1) + K * (1 / (1 + np.exp(-r2 * (x - x0))) - 1 / (1 + np.exp(-r2 * (t1 - x0)))))
+
+
+class SigmoidModel(BaseEstimator):
+    """
+    Parameters
+    ----------
     n_bootstrap : Number of boostrap to estimate the distribution of the fitted parameters
-    proba : Whether or not to apply linear importance of the most recent values, default=True
-
-    Returns
-    -------
-    list of all parameters computed for each boostrap sample
-
+    linear_proba : Whether or not to apply linear importance of the most recent values, default=True
     """
 
-    # --- Parameters to be optimized --- #
-    params = {"x0": [], "K": [], "r": []}
-    bootstrap_indexes = []
+    def __init__(self, n_bootstrap=100, linear_proba=True, loss='MSE'):
+        super(SigmoidModel).__init__()
+        self.n_bootstrap = n_bootstrap
+        self.linear_proba = linear_proba
+        self.loss = loss
+        self.params = {}
+        self.bootstrap_indexes = []
 
-    # --- data used for the loss --- #
-    data = data.reset_index()
-    y = data.total_cases
-    t = (data.index.values + 1)
+    def fit(self, X: pd.DataFrame):
+        """
+        Compute the optimum parameters to fit a generalized logistic function
+        on the data and estimate the paramters distribution with boostrap
 
-    # --- begin bootstrap --- #
-    for k in tqdm(range(n_bootstrap), position=0, leave=True):
+        Parameters
+        ----------
+        X : pd.DataFrame containing the values to fit
+        Returns
+        -------
+        list of all parameters computed for each boostrap sample
 
-        rng = np.random.RandomState()
-        index_value = data.index.values
+        """
 
-        # --- sample with a linear probability distribution if proba = True, uniform otherwise --- #
+        # --- Parameters to be optimized --- #
+        params = {"x0": [], "K": [], "r": []}
+        bootstrap_indexes = []
 
-        proba = [1 / index_value.shape[0] for _ in range(index_value.shape[0])]
-        if proba:
-            proba = (index_value - np.min(index_value)) / np.sum((index_value - np.min(index_value)))
+        # --- data used for the loss --- #
+        data = X.reset_index()
+        y = data.total_cases
+        t = (data.index.values + 1)
 
-        # --- bootstrap index --- #
-        index = rng.choice(y.shape[0], size=y.shape[0], p=proba)
-        bootstrap_indexes.append(index)
+        # --- begin bootstrap --- #
+        for k in range(self.n_bootstrap):
 
-        t_bootstrap = t[index]
-        y_bootstrap = y.iloc[index]
+            rng = np.random.RandomState()
+            index_value = data.index.values
 
-        # --- loss function minimise (MSE) with x = (x0, K, r) --- #
-        fun = lambda x: np.mean((y_bootstrap - sigmoid(t_bootstrap, *x)) ** 2)
+            # --- sample with a linear probability distribution if proba = True, uniform otherwise --- #
 
-        # --- initial parameters --- #
+            proba = [1 / index_value.shape[0] for _ in range(index_value.shape[0])]
+            if self.linear_proba:
+                proba = (index_value - np.min(index_value)) / np.sum((index_value - np.min(index_value)))
 
-        x0 = (max(t) / 2, max(y) / 2, 0.1)
+            # --- bootstrap index --- #
+            index = rng.choice(y.shape[0], size=y.shape[0], p=proba)
+            bootstrap_indexes.append(index)
 
-        # --- optimisation --- #
-        res = minimize(fun, x0, method='Nelder-Mead')
+            t_bootstrap = t[index]
+            y_bootstrap = y.iloc[index]
 
-        params["x0"].append(res["x"][0])
-        params["K"].append(res["x"][1])
-        params["r"].append(res["x"][2])
+            # --- loss function minimise (MSE) with x = (x0, K, r) --- #
+            if self.loss == 'MSE':
+                loss = lambda x: np.mean((y_bootstrap - sigmoid(t_bootstrap, *x)) ** 2)
 
-    return params, bootstrap_indexes
+            elif self.loss == 'MAD':
+                loss = lambda x: np.mean(np.abs((y_bootstrap - sigmoid(t_bootstrap, *x))))
+
+            else:
+                loss = lambda x: np.mean((y_bootstrap - sigmoid(t_bootstrap, *x)) ** 2)
+
+            # --- initial parameters --- #
+
+            x0 = (max(t) / 2, max(y) / 2, 0.1)
+
+            # --- optimisation --- #
+            res = minimize(loss, x0, method='Nelder-Mead')
+
+            params["x0"].append(res["x"][0])
+            params["K"].append(res["x"][1])
+            params["r"].append(res["x"][2])
+
+        self.params = params
+        self.bootstrap_indexes = bootstrap_indexes
+
+        return params, bootstrap_indexes
+
+    def predict(self, t_pred, X):
+        """
+        Compute the model predictions with for each quantile 25%, 50% and 75% of the parameter K
+
+        Parameters
+        ----------
+        X : pd.DataFrame containing the values fitted in .fit method
+        t_pred : values to predict ex: t_pred = np.arange(1, n_prediction, 1)
+
+        Returns
+        -------
+        fitted_sigmoid DataFrame containing all
+        """
+        quantiles = {
+            "25%": [0.5, 0.25, 0.5],
+            "median": [0.5, 0.5, 0.5],
+            "75%": [0.5, 0.75, 0.5]
+        }
+
+        fitted_sigmoid_df = pd.DataFrame()
+        paramters_values_sigmoid = pd.DataFrame()
+
+        t_pred_date = pd.date_range(start=X.date.iloc[0], freq="d", periods=t_pred.shape[0])
+
+        fitted_sigmoid_df["date"] = t_pred_date
+        fitted_sigmoid_df["date_str"] = fitted_sigmoid_df.date.apply(lambda x: x.strftime('%d/%m/%Y'))
+
+        for quantile, quantile_params in quantiles.items():
+            # --- get the quantiles of parameters computed via bootstrap ---#
+            x0, K, r = [np.quantile(list(self.params.values())[i], quantile_params[i]) for i in
+                        range(len(quantile_params))]
+
+            # --- use the parameters to compute the values of the fitted sigmoid --- #
+            fitted_sigmoid_df[quantile] = sigmoid(t_pred, x0, K, r)
+
+            # --- keep parameters values of each quantiles --- #
+            paramters_values_sigmoid[quantile] = [x0, K, r]
+
+        fitted_sigmoid_df["derivative"] = np.quantile(self.params['r'], 0.5) * fitted_sigmoid_df["median"] * \
+                                          (1 - fitted_sigmoid_df["median"] / np.quantile(self.params['K'], 0.5))
+
+        fitted_sigmoid_df["median_display"] = fitted_sigmoid_df["median"].apply(lambda x: '{:,}'.format(int(x)))
+
+        return fitted_sigmoid_df, paramters_values_sigmoid
+
+    def plot_params_distribution(self):
+        """
+        Plot the parameters distribution
+
+        Returns
+        -------
+        matplotlib figure
+        """
+        param_df = pd.DataFrame(data=self.params)
+        figure = sns.pairplot(param_df, kind='reg', diag_kind='kde', height=3)
+
+        return figure
 
 
-def get_prediction_sigmoid(data: pd.DataFrame, fitted_params: dict, n_prediction: int):
-    """
-    Compute the model predictions with for each quantile 25%, 50% and 75% of the parameter K
+def compute_moving_predictions(X: pd.DataFrame, n_prediction, step=5, min_data=10, n_bootstrap=10,
+                               linear_proba=False, loss='MSE', verbose=False):
+    fitted_sigmoid_moving = pd.DataFrame()
+    paramters_values_moving = pd.DataFrame()
 
-    Parameters
-    ----------
-    data : pd.DataFrame containing the values to fit
-    fitted_params : list of all parameters computed for each boostrap sample
-    n_prediction : Number of data point to predict
+    n = X.shape[0]
 
-    Returns
-    -------
-    fitted_sigmoid DataFrame containing all
-    """
-    quantiles = {
-        "25%": [0.5, 0.25, 0.5],
-        "50%": [0.5, 0.5, 0.5],
-        "75%": [0.5, 0.75, 0.5]
-    }
+    for k in range((n - min_data) // step + 1):
+        sigmoid_model = SigmoidModel(n_bootstrap=n_bootstrap, linear_proba=linear_proba, loss=loss)
 
-    fitted_sigmoid_df = pd.DataFrame()
-    paramters_values_sigmoid = pd.DataFrame()
+        end_data_index = min_data + step * k
+        if k == (n - min_data) // step:
+            # Take all data
+            X_train = X
+            end_data_index = X.shape[0]
+        else:
+            # Take a subset
+            X_train = X.iloc[:end_data_index, :]
 
-    t_pred = np.arange(1, n_prediction, 1)
-    t_pred_date = pd.date_range(start=data.date.iloc[0], freq="d", periods=t_pred.shape[0])
+        if verbose:
+            print(f"index values from 0 to {end_data_index}")
 
-    fitted_sigmoid_df["date"] = t_pred_date
+        t_pred_end = X_train.date.iloc[-1]
+        t_pred = np.arange(1, n_prediction, 1)
+        fitted_params, _ = sigmoid_model.fit(X_train)
+        fitted_sigmoid_df, paramters_values_sigmoid = sigmoid_model.predict(t_pred, X_train)
 
-    for quantile, quantile_params in quantiles.items():
-        # --- get the quantiles of parameters computed via bootstrap ---#
-        x0, K, r = [np.quantile(list(fitted_params.values())[i], quantile_params[i]) for i in
-                    range(len(quantile_params))]
+        fitted_sigmoid_df["date_end_train"] = np.repeat(t_pred_end, repeats=fitted_sigmoid_df.shape[0])
 
-        # --- use the parameters to compute the values of the fitted sigmoid --- #
-        fitted_sigmoid_df[quantile] = sigmoid(t_pred, x0, K, r)
+        fitted_sigmoid_moving = pd.concat([fitted_sigmoid_moving, fitted_sigmoid_df])
+        paramters_values_moving = pd.concat([paramters_values_moving, paramters_values_sigmoid])
 
-        # --- keep parameters values of each quantiles --- #
-        paramters_values_sigmoid[quantile] = [x0, K, r]
-
-    fitted_sigmoid_df["derivative"] = np.quantile(fitted_params['r'], 0.5) * fitted_sigmoid_df["50%"] * \
-                                      (1 - fitted_sigmoid_df["50%"] / np.quantile(fitted_params['K'], 0.5))
-
-    return fitted_sigmoid_df, paramters_values_sigmoid
-
-
-def plot_params_distribution(params):
-    """
-    Plot the parameters distribution
-
-    Parameters
-    ----------
-    params: list of all parameters computed for each boostrap sample
-
-    Returns
-    -------
-    matplotlib figure
-    """
-    param_df = pd.DataFrame(data=params)
-    figure = sns.pairplot(param_df, kind='reg', diag_kind='kde', height=3)
-
-    return figure
-
-
+    return fitted_sigmoid_moving, paramters_values_moving
