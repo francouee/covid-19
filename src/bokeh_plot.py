@@ -71,11 +71,11 @@ def generate_plot(data, df_all_prediction):
 
     date_end_training = np.unique(get_country(df_all_prediction, country)["date_end_train"])[-1]
     source_prediction_end_date = bkm.ColumnDataSource(get_country(df_all_prediction, country)[
-                                                          get_country(df_all_prediction,
+                                                      get_country(df_all_prediction,
                                                                       country).date_end_train == date_end_training])
 
     slider = bkm.Slider(start=0, end=len(np.unique(get_country(df_all_prediction, country)["date_end_train"])) - 1,
-                        value=0, step=1, title="Days droped for prediction")
+                        value=0, step=1, title="Days dropped for prediction")
 
     # ----------- #
 
@@ -422,7 +422,7 @@ def generate_plot(data, df_all_prediction):
                                 var new_new_cases = []
 
                                 for(var i=0; i < quantile_1.length; i++){
-                                    if(date_end_prediction[i]==unique_end_prediction[slider.end - slider_value - 1]){
+                                    if(date_end_prediction[i]==unique_end_prediction[slider.end - slider_value]){
                                         new_date_prediction.push(date_prediction[i])
                                         new_date_end_prediction.push(date_end_prediction[i])
                                         new_quantile_1.push(quantile_1[i]);
