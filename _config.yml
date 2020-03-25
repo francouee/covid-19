@@ -1,4 +1,5 @@
-title:
+title: Covid 19 outbreak
+page-title:
   en: Covid 19 outbreak
   fr: Epidémie Covid 19
 description:
@@ -8,3 +9,6 @@ theme: jekyll-theme-cayman
 site-footer-description:
   en: is maintained by
   fr: est maintenu par
+github-button-desc:
+  en: View on Github
+  fr: Voir sur Github

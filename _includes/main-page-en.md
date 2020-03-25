@@ -4,16 +4,16 @@
 
 The chart show the evolution of COVID-19 for:
 
-1. **Total number of cases** (left axis)
-2. **New cases** (right axis)
-3. **Total number of death**  (right axis)
-4. **New deaths**  (right axis)
+1. <span style="color:#1f77b4">**Total number of cases**</span> (left axis)
+2. <span style="color:#ff7f0e">**New cases**</span> (right axis)
+3. <span style="color:#d62728">**Total number of deaths**</span>  (right axis)
+4. <span style="color:#8c564b">**New deaths**</span>  (right axis)
 
 The top part of the graph allows to:
 
 * Select the displayed **country** for the curves
 
-* Show the total number of cases **prédictions** made with model explained the next section.
+* Show the  total number of cases  **predictions** made by the model explained next section.
 
 * Visualise the prediction made the day $$ j-slider \ value $$. For instance, if the slider value is 3, the displayed curve corresponds to the total number of cases prediction made 3 days sooner.
 

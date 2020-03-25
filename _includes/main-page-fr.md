@@ -2,10 +2,10 @@
 
 Le graphique représente la courbe d'évolution pour le COVID-19 du:
 
-1. **Nombre total de cas** (axes de gauche)
-2. **Nombre de nouveaux cas** (axes de droite)
-3. **Nombre total de décés**  (axes de droite)
-4. **Nombre de nouveaux décés**  (axes de droite)
+1. <span style="color:#1f77b4">**Nombre total de cas**</span> (axes de gauche)
+2. <span style="color:#ff7f0e">**Nombre de nouveaux cas**</span> (axes de droite)
+3. <span style="color:#d62728">**Nombre total de décés**</span>  (axes de droite)
+4. <span style="color:#8c564b">**Nombre de nouveaux décés**</span>  (axes de droite)
 
 La partie haute du graphique permet de:
 
