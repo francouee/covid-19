@@ -17,7 +17,7 @@ bashCommand = "wget https://covid.ourworldindata.org/data/ecdc/full_data.csv"
 subprocess.call(bashCommand.split(), stdout=subprocess.PIPE)
 
 bashCommand = "mv full_data.csv " + str(data_path) + "/ecdc_full_data.csv"
-subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+subprocess.call(bashCommand.split(), stdout=subprocess.PIPE)
 
 # ---- read data ---- #
 
@@ -38,7 +38,7 @@ for country in tqdm(countries, position=0, leave=True):
     print("fit model for " + country + " data")
     df = get_country_and_min_count(data, country)
 
-    fitted_sigmoid_df, paramters_values_sigmoid = compute_moving_predictions(df, n_prediction=90, n_bootstrap=3,
+    fitted_sigmoid_df, paramters_values_sigmoid = compute_moving_predictions(df, n_prediction=90, n_bootstrap=20,
                                                                              min_data=df.shape[0] - 5, step=1,
                                                                              loss='MSE', linear_proba=True)
     fitted_sigmoid_df["location"] = np.repeat(country, repeats=fitted_sigmoid_df.shape[0])

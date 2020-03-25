@@ -232,7 +232,7 @@ def generate_plot(data, df_all_prediction):
                             var quantile_2 = source_all_prediction.data['median']
                             var quantile_3 = source_all_prediction.data['75%']
                             var new_cases = source_all_prediction.data['derivative']
-
+                            var median_prediction = source_all_prediction.data['median_display']
 
                             var new_date = []
                             var new_date_end_prediction = []
@@ -240,6 +240,7 @@ def generate_plot(data, df_all_prediction):
                             var new_quantile_2 = []
                             var new_quantile_3 = []
                             var new_new_cases = []
+                            var new_median_prediction = []
 
                             for(var i=0; i < quantile_1.length; i++){
                                 if(location[i]==country){
@@ -249,6 +250,7 @@ def generate_plot(data, df_all_prediction):
                                     new_quantile_2.push(quantile_2[i]);
                                     new_quantile_3.push(quantile_3[i]);
                                     new_new_cases.push(new_cases[i]);
+                                    new_median_prediction.push(median_prediction[i]);
                                 }
                             }   
                             source_prediction.data['date']=new_date
@@ -257,6 +259,7 @@ def generate_plot(data, df_all_prediction):
                             source_prediction.data['median']=new_quantile_2;
                             source_prediction.data['75%']=new_quantile_3;
                             source_prediction.data['derivative']=new_new_cases;
+                            source_prediction.data['median_display']=new_median_prediction;
 
 
                             var n = new_date.length
@@ -268,6 +271,7 @@ def generate_plot(data, df_all_prediction):
                             var new_quantile_2_bis = []
                             var new_quantile_3_bis = []
                             var new_new_cases_bis = []
+                            var new_median_prediction_bis = []
 
                             for(var i=0; i < n; i++){
                                 if(new_date_end_prediction[i]==max_date){
@@ -277,6 +281,7 @@ def generate_plot(data, df_all_prediction):
                                     new_quantile_2_bis.push(new_quantile_2[i]);
                                     new_quantile_3_bis.push(new_quantile_3[i]);
                                     new_new_cases_bis.push(new_new_cases[i]);
+                                    new_median_prediction_bis.push(new_median_prediction[i]);
                                 }
                             }   
 
@@ -289,7 +294,7 @@ def generate_plot(data, df_all_prediction):
                             source_prediction_end_date.data['median']=new_quantile_2_bis;
                             source_prediction_end_date.data['75%']=new_quantile_3_bis;
                             source_prediction_end_date.data['derivative']=new_new_cases_bis;
-
+                            source_prediction_end_date.data['median_display']=new_median_prediction_bis;
 
                             source_prediction.change.emit();
                             source_prediction_end_date.change.emit()
@@ -407,12 +412,13 @@ def generate_plot(data, df_all_prediction):
                            var quantile_2 = source_prediction.data['median']
                            var quantile_3 = source_prediction.data['75%']
                            var new_cases = source_prediction.data['derivative'];
+                           var median_prediction = source_prediction.data['median_display']
 
                            var unique_end_prediction = date_end_prediction.filter(unique)
 
                            var show_prediction = (button_click_count.data.clicks % 2) == 1
                            var locations_predicted = source_all_prediction.data['location'].filter(unique)
-                           console.log(locations_predicted)
+
                            if (show_prediction == true && locations_predicted.includes(country)){
                                 var new_date_prediction = []
                                 var new_date_end_prediction = []
@@ -420,6 +426,7 @@ def generate_plot(data, df_all_prediction):
                                 var new_quantile_2 = []
                                 var new_quantile_3 = []
                                 var new_new_cases = []
+                                var new_median_prediction = []
 
                                 for(var i=0; i < quantile_1.length; i++){
                                     if(date_end_prediction[i]==unique_end_prediction[slider.end - slider_value]){
@@ -429,6 +436,7 @@ def generate_plot(data, df_all_prediction):
                                         new_quantile_2.push(quantile_2[i]);
                                         new_quantile_3.push(quantile_3[i]);
                                         new_new_cases.push(new_cases[i]);
+                                        new_median_prediction.push(median_prediction[i]);
                                     }
                                 }   
 
@@ -439,6 +447,7 @@ def generate_plot(data, df_all_prediction):
                                 source_prediction_end_date.data['median']=new_quantile_2;
                                 source_prediction_end_date.data['75%']=new_quantile_3;
                                 source_prediction_end_date.data['derivative']=new_new_cases;
+                                source_prediction_end_date.data['median_display']=new_median_prediction;
 
                                 source_prediction_end_date.change.emit();
                                 console.log(source_prediction_end_date.data)
@@ -454,8 +463,8 @@ def generate_plot(data, df_all_prediction):
                                  });
 
 
-                                y_range_left.setv({"start": -0.05*Math.max.apply(Math, total_cases_prediction), "end": 1.1*Math.max.apply(Math, total_cases_prediction)})
-                                x_range.setv({"start": Math.min.apply(Math, date_prediction), "end": 1.0001*Math.max.apply(Math, date_prediction)})
+                                // y_range_left.setv({"start": -0.05*Math.max.apply(Math, total_cases_prediction), "end": 1.1*Math.max.apply(Math, total_cases_prediction)})
+                                // x_range.setv({"start": Math.min.apply(Math, date_prediction), "end": 1.0001*Math.max.apply(Math, date_prediction)})
 
                            }
 
