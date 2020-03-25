@@ -1,5 +1,10 @@
-title: Covid 19 outbreak
+title:
+  en: Covid 19 outbreak
+  fr: Epidémie Covid 19
 description:
 show_downloads: false
 google_analytics: UA-161657941-1
 theme: jekyll-theme-cayman
+site-footer-description:
+  en: is maintained by
+  fr: est maintenu par
