@@ -1,3 +1,7 @@
+import bokeh.models as bkm
+from bokeh.embed import file_html
+from bokeh.resources import Resources
+
 from src.utils import *
 from src import bokeh_plot
 
@@ -6,7 +10,7 @@ import os
 import pathlib
 
 data_path = pathlib.Path("../data/")
-
+includes_path = pathlib.Path("../_includes/")
 
 # ---- Update data ---- #
 if os.path.exists(str(data_path) + "/ecdc_full_data.csv"):
@@ -48,7 +52,16 @@ for country in tqdm(countries, position=0, leave=True):
 
 # ---- plot data ---- #
 
-bokeh_plot.generate_plot(data, df_all_prediction)
+select, button_prediction, slider, p = bokeh_plot.generate_plot(data, df_all_prediction)
 
+html = file_html(bkm.Column(bkm.Row(select, button_prediction, slider), p,
+                            sizing_mode='stretch_width'), Resources(mode='cdn'), "plot")
 
+html = html.replace("<!DOCTYPE html>", " ")
+
+with open("plot.html", 'w') as f:
+    f.write(html)
+
+bashCommand = "mv plot.html " + str(includes_path) + "/plot.html"
+subprocess.call(bashCommand.split(), stdout=subprocess.PIPE)
 

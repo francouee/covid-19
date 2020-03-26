@@ -475,19 +475,4 @@ def generate_plot(data, df_all_prediction):
     p.legend.location = "top_left"
     p.legend.click_policy = "mute"
 
-    html = file_html(bkm.Column(bkm.Row(select, button_prediction, slider), p,
-                                sizing_mode='stretch_width'), Resources(mode='cdn'), "plot")
-
-
-    html = html.replace("<!DOCTYPE html>", " ")
-
-    with open("plot.html", 'w') as f:
-        f.write(html)
-
-
-    bashCommand = "mv plot.html " + str(includes_path) + "/plot.html"
-    subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
-
-
-
-
+    return select, button_prediction, slider, p
