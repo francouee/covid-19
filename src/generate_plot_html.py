@@ -1,3 +1,11 @@
+import subprocess
+import os
+from pathlib import Path
+import sys
+
+sys.path.append(str(Path(os.getcwd()).parent))
+sys.path.append(os.getcwd())
+
 import bokeh.models as bkm
 from bokeh.embed import file_html
 from bokeh.resources import Resources
@@ -5,12 +13,10 @@ from bokeh.resources import Resources
 from src.utils import *
 from src import bokeh_plot
 
-import subprocess
-import os
-import pathlib
 
-data_path = pathlib.Path("../data/")
-includes_path = pathlib.Path("../_includes/")
+
+data_path = Path("../data/")
+includes_path = Path("../_includes/")
 
 # ---- Update data ---- #
 if os.path.exists(str(data_path) + "/ecdc_full_data.csv"):
