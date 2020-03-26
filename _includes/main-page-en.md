@@ -51,7 +51,7 @@ The [Nelder-Mead](https://en.wikipedia.org/wiki/Nelder–Mead_method) optimisati
 
 The estimation of optimum parameters distribution is computed with a **Bootstrap** method. The distribution used to sample the parameters is linear, granting more importance to recent values than old ones. The central curve of the prediction is obtained with the median parameters and the upper and lower are obtained respectively with the 1st and 3rd quantiles.
 
-{% include image.html url="../img/pairplot-parameters.png" description="Parameters distribution" width="60%" %}
+{% include image.html url="./img/pairplot-parameters.png" description="Parameters distribution" width="60%" %}
 
 # Future work
 
@@ -79,4 +79,4 @@ In order to preserve both the function and it's derivative continuity for $$ t=t
 1. $$ f(t{_1})_- = f(t{_1})_+ \implies a  = e^{r_1t} - K \frac{1}{1+e^{-r_2(t_1 - t_0)}}  $$
 2. $$  f'(t{_1})_- = f'(t{_1})_+ \implies   K= \frac{r_1}{r_2} \  e^{r_1t} \  \frac{ 1+e^{ - r_2 (t_1 - t_0) }}{1 - \frac{1}{1+e^{-r_2(t_1 - t_0)}}} $$ 
 
-{% include image.html url="../img/difs-two-models.png" description="Différence between models" width="90%" %}
+{% include image.html url="./img/difs-two-models.png" description="Différence between models" width="90%" %}
