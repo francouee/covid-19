@@ -235,7 +235,7 @@ class SigmoidModel(BaseEstimator):
 
         return fitted_sigmoid_df, paramters_values_sigmoid
 
-    def plot_params_distribution(self):
+    def plot_params_distribution(self, height=3.5, **plot_kws):
         """
         Plot the parameters distribution
 
@@ -244,7 +244,7 @@ class SigmoidModel(BaseEstimator):
         matplotlib figure
         """
         param_df = pd.DataFrame(data=self.params)
-        figure = sns.pairplot(param_df, kind='reg', diag_kind='kde', height=3)
+        figure = sns.pairplot(param_df, diag_kind='kde', height=height, plot_kws=plot_kws)
 
         return figure
 

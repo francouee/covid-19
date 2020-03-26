@@ -48,3 +48,40 @@ L'algorithme d'optimisation utilisé est celui de [Nelder-Mead](https://fr.wikip
 ## Distribution des paramètres et calcul d'incertitudes
 
 La distribution des paramêtres optimaux du modèle est calculé par **Bootstrap**. Les échantillons Boostrap sont tirés avec une distribution linéaire, accordant plus d'importance aux données récentes qu'aux autres. La courbe centrale des prédictions correspond à la médiane des paramètres et les courbes supérieures et inférieures respectivement aux 1er et 3ème quantiles.
+
+
+
+{% include image.html url="../img/pairplot-parameters.png" description="Distribution des paramètres" width="60%" %}
+
+
+
+# Travail à venir
+
+* Remarque sur les prédictions du modèle de Verhulstthe:
+
+Le modèle de Verhulstthe est assez instable dans la phase de croissance exponentielle de la maladie. Le modèle à tendance à sous estimer la phase de croissance esponentielle du virus. 
+
+## Nouveau modèle de croissance
+
+Le nouveau modèle développé conciste à avoir deux modes de croissance du virus. 
+
+1. Croissance exponentielle: $$ f(t) = e^{r_1t} $$
+2. Croissance logistique: $$ f(t)=K \frac{1}{1+e^{-r(t - t_0)}} $$
+
+Le modèle final de l'évolution du nombre de cas est:
+
+$$ f(t) = (1-y(t)) \ e^{r_1t} + y(t) \ \big(\ a +  K \frac{1}{1+e^{-r_2(t - t_0)}} \big) $$
+
+$$ \cdot \ y(t)= 0 $$ pour la croissance la phase de croissance exponentielle, 1 sinon.
+
+Cette modélisation permet de prendre en compte la phase avant et après **confinement** grâce à la variable booléenne $$ y $$. La difficulté est d'apprendre l'instant $$t_1$$ pour lequel cette variable passe de $$0$$ à $$1$$.
+
+Afin de garder la continuité de la fonction et de sa dérivé  en $$ t=t_1 $$,  $$ y(t_1)_-=0 $$ et $$ y(t_1)_+=1 $$ il faut que:
+
+1. $$ f(t{_1})_- = f(t{_1})_+ \implies a  = e^{r_1t} - K \frac{1}{1+e^{-r_2(t_1 - t_0)}}  $$
+2. $$  f'(t{_1})_- = f'(t{_1})_+ \implies   K= \frac{r_1}{r_2} \  e^{r_1t} \  \frac{ 1+e^{ - r_2 (t_1 - t_0) }}{1 - \frac{1}{1+e^{-r_2(t_1 - t_0)}}} $$ 
+
+{% include image.html url="../img/difs-two-models.png" description="Différence entre les deux modélisations" width="90%" %}
+
+
+
