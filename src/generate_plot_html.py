@@ -3,12 +3,12 @@ import os
 from pathlib import Path
 import sys
 
-sys.path.append(str(Path(os.getcwd()).parent))
-sys.path.append(os.getcwd())
-
 import bokeh.models as bkm
 from bokeh.embed import file_html
 from bokeh.resources import Resources
+
+sys.path.append(str(Path(os.getcwd()).parent))
+sys.path.append(os.getcwd())
 
 from src.utils import *
 from src import bokeh_plot
@@ -32,7 +32,8 @@ subprocess.call(bashCommand.split(), stdout=subprocess.PIPE)
 # ---- read data ---- #
 
 data = pd.read_csv(data_path / "ecdc_full_data.csv")
-data = data.rename(columns={"Total confirmed cases of COVID-19" : "total_cases"})
+data = data.rename(
+    columns={"Total confirmed cases of COVID-19": "total_cases"})
 data['date'] = data.date.apply(pd.to_datetime)
 data['date_str'] = data.date.apply(lambda x: x.strftime('%d/%m/%Y'))
 data = data_china_smoothing(data, n_days_smoothing=6, n_cases_true=5000)
@@ -70,4 +71,3 @@ with open("plot.html", 'w') as f:
 
 bashCommand = "mv plot.html " + str(includes_path) + "/plot.html"
 subprocess.call(bashCommand.split(), stdout=subprocess.PIPE)
-

@@ -9,10 +9,10 @@ import subprocess
 import pathlib
 import datetime
 
-includes_path = pathlib.Path("../_includes/")
-
 from src.utils import get_country
 import numpy as np
+
+includes_path = pathlib.Path("../_includes/")
 
 
 def generate_plot(data, df_all_prediction):
@@ -34,7 +34,7 @@ def generate_plot(data, df_all_prediction):
                     <span style="font-size: 12px; color: {COLORS[5]}; font-weight: bold;font-family:century gothic;">@new_deaths</span>
                 <br> 
                     <span style="font-size: 12px; color: black;font-family:century gothic;">Date : </span>
-                    <span style="font-size: 12px; color: black; font-weight: bold;font-family:century gothic;">""" + """@date_str</span>
+                    <span style="font-size: 12px; color: black; font-weight: bold;font-family:century gothic;">@date_str</span>
                 </p>
             </div>
         """
@@ -67,12 +67,14 @@ def generate_plot(data, df_all_prediction):
     source = bkm.ColumnDataSource(get_country(data, country))
 
     source_all_prediction = bkm.ColumnDataSource(df_all_prediction)
-    source_prediction = bkm.ColumnDataSource(get_country(df_all_prediction, country))
+    source_prediction = bkm.ColumnDataSource(
+        get_country(df_all_prediction, country))
 
-    date_end_training = np.unique(get_country(df_all_prediction, country)["date_end_train"])[-1]
+    date_end_training = np.unique(get_country(
+        df_all_prediction, country)["date_end_train"])[-1]
     source_prediction_end_date = bkm.ColumnDataSource(get_country(df_all_prediction, country)[
                                                       get_country(df_all_prediction,
-                                                                      country).date_end_train == date_end_training])
+                                                                  country).date_end_train == date_end_training])
 
     slider = bkm.Slider(start=0, end=len(np.unique(get_country(df_all_prediction, country)["date_end_train"])) - 1,
                         value=0, step=1, title="Days dropped for prediction")
@@ -88,7 +90,8 @@ def generate_plot(data, df_all_prediction):
                    y_range=[-get_country(data, country).total_cases.max() * 0.05,
                             get_country(data, country).total_cases.max() * 1.1])
     p.yaxis.formatter = bkm.formatters.NumeralTickFormatter(format='0,0')
-    p.xaxis.formatter = bkm.formatters.DatetimeTickFormatter(days=['%d/%m', '%d%a'], months=['%m/%Y', '%b %Y'])
+    p.xaxis.formatter = bkm.formatters.DatetimeTickFormatter(
+        days=['%d/%m', '%d%a'], months=['%m/%Y', '%b %Y'])
     p.add_tools(hover_prediction)
 
     # p.toolbar.active_scroll = p.select_one(bkm.WheelZoomTool)
@@ -102,7 +105,8 @@ def generate_plot(data, df_all_prediction):
 
     p.line(source=source, x='date', y='total_cases', name='line_total', color=COLORS[0], legend_label='total cases',
            muted_alpha=0.1)
-    p.circle(source=source, x='date', y='total_cases', color=COLORS[0], muted_alpha=0.1)
+    p.circle(source=source, x='date', y='total_cases',
+             color=COLORS[0], muted_alpha=0.1)
 
     # --- plot new cases --- #
 
@@ -123,7 +127,8 @@ def generate_plot(data, df_all_prediction):
 
     button_click_count = bkm.ColumnDataSource({"clicks": [0]})
 
-    select = bkm.Select(title="Country: ", value=country, options=list(data.location.unique()))
+    select = bkm.Select(title="Country: ", value=country,
+                        options=list(data.location.unique()))
     button_log = bkm.Button(label="Log Scale", button_type='primary')
 
     # --- Predictions --- #
@@ -149,12 +154,14 @@ def generate_plot(data, df_all_prediction):
     p.add_layout(band_low)
     p.add_layout(band_high)
 
-    button_prediction = bkm.Button(label="Show predictions", button_type="primary")
+    button_prediction = bkm.Button(
+        label="Show predictions", button_type="primary")
 
     # -- Callback -- #
 
     callback = bkm.CustomJS(args=dict(source=source, source_all=source_all, select=select, x_range=p.x_range,
-                                      y_range_left=p.y_range, y_range_right=p.extra_y_ranges['Number of deaths'],
+                                      y_range_left=p.y_range, y_range_right=p.extra_y_ranges[
+                                          'Number of deaths'],
                                       title=p.title,
                                       button_click_count=button_click_count, slider=slider,
                                       source_all_prediction=source_all_prediction,
@@ -163,11 +170,11 @@ def generate_plot(data, df_all_prediction):
                                       median_prediction=median_prediction,
                                       band_low=band_low,
                                       prediction_cases_line=prediction_cases_line,
-                                      band_high=band_high), code=
-                            """
+                                      band_high=band_high), code="""
                             var country = select.value
 
                             var date = source_all.data['date']
+                            var date_str = source_all.data['date_str']
                             var location = source_all.data['location']
                             var total_cases = source_all.data['total_cases']
                             var new_cases = source_all.data['new_cases']
@@ -176,6 +183,7 @@ def generate_plot(data, df_all_prediction):
 
 
                             var new_date = []
+                            var new_date_str = []
                             var new_total_cases = []
                             var new_new_cases = []
                             var new_total_deaths = []
@@ -185,6 +193,7 @@ def generate_plot(data, df_all_prediction):
                             for(var i=0; i < date.length; i++){
                                 if(location[i]==country){
                                     new_date.push(date[i]);
+                                    new_date_str.push(date_str[i])
                                     new_total_cases.push(total_cases[i]);
                                     new_new_cases.push(new_cases[i]);
                                     new_total_deaths.push(total_deaths[i]);
@@ -193,6 +202,7 @@ def generate_plot(data, df_all_prediction):
                             }
 
                             source.data['date']=new_date;
+                            source.data['date_str']=new_date_str;
                             source.data['total_cases']=new_total_cases;
                             source.data['new_cases']=new_new_cases;
                             source.data['total_deaths']=new_total_deaths;
@@ -228,6 +238,7 @@ def generate_plot(data, df_all_prediction):
 
                             var location = source_all_prediction.data['location']
                             var date = source_all_prediction.data['date']
+                            var date_str = source_all_prediction.data['date_str']
                             var quantile_1 = source_all_prediction.data['25%']
                             var quantile_2 = source_all_prediction.data['median']
                             var quantile_3 = source_all_prediction.data['75%']
@@ -235,6 +246,7 @@ def generate_plot(data, df_all_prediction):
                             var median_prediction = source_all_prediction.data['median_display']
 
                             var new_date = []
+                            var new_date_str = []
                             var new_date_end_prediction = []
                             var new_quantile_1 = []
                             var new_quantile_2 = []
@@ -245,6 +257,7 @@ def generate_plot(data, df_all_prediction):
                             for(var i=0; i < quantile_1.length; i++){
                                 if(location[i]==country){
                                     new_date.push(date[i])
+                                    new_date_str.push(date_str[i])
                                     new_date_end_prediction.push(date_end_prediction[i])
                                     new_quantile_1.push(quantile_1[i]);
                                     new_quantile_2.push(quantile_2[i]);
@@ -254,6 +267,7 @@ def generate_plot(data, df_all_prediction):
                                 }
                             }   
                             source_prediction.data['date']=new_date
+                            source_prediction.data['date_str']=new_date_str
                             source_prediction.data['date_end_train']=new_date_end_prediction
                             source_prediction.data['25%']=new_quantile_1;
                             source_prediction.data['median']=new_quantile_2;
@@ -266,6 +280,7 @@ def generate_plot(data, df_all_prediction):
                             var max_date = Math.max.apply(Math, new_date_end_prediction)
 
                             var new_date_bis = []
+                            var new_date_str_bis = []
                             var new_date_end_prediction_bis = []
                             var new_quantile_1_bis = []
                             var new_quantile_2_bis = []
@@ -276,6 +291,7 @@ def generate_plot(data, df_all_prediction):
                             for(var i=0; i < n; i++){
                                 if(new_date_end_prediction[i]==max_date){
                                     new_date_bis.push(new_date[i])
+                                    new_date_str_bis.push(new_date_str[i])
                                     new_date_end_prediction_bis.push(new_date_end_prediction[i])
                                     new_quantile_1_bis.push(new_quantile_1[i]);
                                     new_quantile_2_bis.push(new_quantile_2[i]);
@@ -283,12 +299,13 @@ def generate_plot(data, df_all_prediction):
                                     new_new_cases_bis.push(new_new_cases[i]);
                                     new_median_prediction_bis.push(new_median_prediction[i]);
                                 }
-                            }   
+                            }
 
                             var n = new_date_bis.length
                             var max_date = Math.max.apply(Math, new_date_end_prediction_bis)
 
                             source_prediction_end_date.data['date']=new_date_bis
+                            source_prediction_end_date.data['date_str']=new_date_str_bis
                             source_prediction_end_date.data['date_end_train']=new_date_end_prediction_bis
                             source_prediction_end_date.data['25%']=new_quantile_1_bis;
                             source_prediction_end_date.data['median']=new_quantile_2_bis;
@@ -312,8 +329,7 @@ def generate_plot(data, df_all_prediction):
 
                             """)
 
-    callback_button = bkm.CustomJS(args=dict(y_axis=p.left, title=p.title), code=
-    """
+    callback_button = bkm.CustomJS(args=dict(y_axis=p.left, title=p.title), code="""
     console.log(y_axis)
     y_axis = LogAxis()
     """)
@@ -328,8 +344,7 @@ def generate_plot(data, df_all_prediction):
                   prediction_cases_line=prediction_cases_line,
                   band_high=band_high, button_click_count=button_click_count,
                   x_range=p.x_range, y_range_left=p.y_range,
-                  y_range_right=p.extra_y_ranges['Number of deaths']), code=
-        """
+                  y_range_right=p.extra_y_ranges['Number of deaths']), code="""
                                    // function to get unique value of an array
                                    const unique = (value, index, self) => {
                                        return self.indexOf(value) === index
@@ -350,7 +365,7 @@ def generate_plot(data, df_all_prediction):
                                    });
 
                                    var country = select.value
-                                   button_click_count.data.clicks ++ 
+                                   button_click_count.data.clicks ++
                                    var show_prediction = (button_click_count.data.clicks % 2) == 1
 
                                    var locations_predicted = source_all_prediction.data['location'].filter(unique)
@@ -407,6 +422,7 @@ def generate_plot(data, df_all_prediction):
                            console.log(source_prediction.data)
 
                            var date_prediction = source_prediction.data['date']
+                           var date_str = source_prediction.data['date_str']
                            var date_end_prediction = source_prediction.data['date_end_train']
                            var quantile_1 = source_prediction.data['25%'];
                            var quantile_2 = source_prediction.data['median']
@@ -421,6 +437,7 @@ def generate_plot(data, df_all_prediction):
 
                            if (show_prediction == true && locations_predicted.includes(country)){
                                 var new_date_prediction = []
+                                var new_date_str = []
                                 var new_date_end_prediction = []
                                 var new_quantile_1 = []
                                 var new_quantile_2 = []
@@ -431,6 +448,7 @@ def generate_plot(data, df_all_prediction):
                                 for(var i=0; i < quantile_1.length; i++){
                                     if(date_end_prediction[i]==unique_end_prediction[slider.end - slider_value]){
                                         new_date_prediction.push(date_prediction[i])
+                                        new_date_str.push(date_str[i])
                                         new_date_end_prediction.push(date_end_prediction[i])
                                         new_quantile_1.push(quantile_1[i]);
                                         new_quantile_2.push(quantile_2[i]);
@@ -442,6 +460,7 @@ def generate_plot(data, df_all_prediction):
 
 
                                 source_prediction_end_date.data['date']=new_date_prediction
+                                source_prediction_end_date.data['date_str']=new_date_str
                                 source_prediction_end_date.data['date_end_train']=new_date_end_prediction
                                 source_prediction_end_date.data['25%']=new_quantile_1;
                                 source_prediction_end_date.data['median']=new_quantile_2;
