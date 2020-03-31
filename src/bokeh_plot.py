@@ -215,8 +215,11 @@ def generate_plot(data, df_all_prediction):
                                 return !Number.isNaN(value);
                             });
 
-                            y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan), "end": 1.1*Math.max.apply(Math, new_cases_no_Nan)})
-                            y_range_left.setv({"start": -0.05*Math.max.apply(Math, cases_no_Nan), "end": 1.1*Math.max.apply(Math, cases_no_Nan)})
+                            y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan.concat(new_total_deaths)), 
+                                                "end": 1.1*Math.max.apply(Math, new_cases_no_Nan.concat(new_total_deaths))})
+
+                            y_range_left.setv({"start": -0.05*Math.max.apply(Math, cases_no_Nan), 
+                                               "end": 1.1*Math.max.apply(Math, cases_no_Nan)})
 
                             x_range.setv({"start": Math.min.apply(Math, new_date), "end": 1.0001*Math.max.apply(Math, new_date)})
 
@@ -324,7 +327,6 @@ def generate_plot(data, df_all_prediction):
 
                             // change slider value
 
-                            console.log(slider, new_date_end_prediction.filter(unique))
                             slider.setv({"end": new_date_end_prediction.filter(unique).length - 1, "value": 0})
 
                             """)
@@ -353,6 +355,7 @@ def generate_plot(data, df_all_prediction):
                                    var date = source.data['date'];
                                    var total_cases = source.data['total_cases'];
                                    var new_cases = source.data['new_cases'];
+                                   var total_deaths = source.data['total_deaths'];
 
                                    var date_prediction = source_prediction.data['date'];
                                    var total_cases_prediction = source_prediction.data['75%'];
@@ -381,8 +384,8 @@ def generate_plot(data, df_all_prediction):
                                            prediction_cases_line.visble = true
 
                                            y_range_left.setv({"start": -0.05*Math.max.apply(Math, total_cases_prediction), "end": 1.1*Math.max.apply(Math, total_cases_prediction)})
-                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan),
-                                                               "end": 1.1*Math.max.apply(Math, new_cases_no_Nan) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan)})
+                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan.concat(total_deaths)) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan),
+                                                               "end": 1.1*Math.max.apply(Math, new_cases_no_Nan.concat(total_deaths)) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan)})
 
                                            x_range.setv({"start": Math.min.apply(Math, date_prediction), "end": 1.0001*Math.max.apply(Math, date_prediction)})
                                        }
@@ -393,7 +396,7 @@ def generate_plot(data, df_all_prediction):
                                            prediction_cases_line.visble = false
 
                                            y_range_left.setv({"start": -0.05*Math.max.apply(Math, cases_no_Nan), "end": 1.1*Math.max.apply(Math, cases_no_Nan)})
-                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan), "end": 1.1*Math.max.apply(Math, new_cases_no_Nan)})
+                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan.concat(total_deaths)), "end": 1.1*Math.max.apply(Math, new_cases_no_Nan.concat(total_deaths))})
                                            x_range.setv({"start": Math.min.apply(Math, date), "end": 1.0001*Math.max.apply(Math, date)})
 
                                        }
@@ -418,8 +421,6 @@ def generate_plot(data, df_all_prediction):
 
                            var slider_value = slider.value
                            var country = select.value
-
-                           console.log(source_prediction.data)
 
                            var date_prediction = source_prediction.data['date']
                            var date_str = source_prediction.data['date_str']
@@ -469,7 +470,6 @@ def generate_plot(data, df_all_prediction):
                                 source_prediction_end_date.data['median_display']=new_median_prediction;
 
                                 source_prediction_end_date.change.emit();
-                                console.log(source_prediction_end_date.data)
 
                                 var date_prediction = source_prediction_end_date.data['date'];
                                 var total_cases_prediction = source_prediction_end_date.data['75%'];
