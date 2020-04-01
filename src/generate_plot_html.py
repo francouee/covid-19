@@ -40,7 +40,7 @@ data = data_china_smoothing(data, n_days_smoothing=6, n_cases_true=5000)
 
 df_all_prediction = pd.DataFrame()
 countries = ["France", "Italy", 'South Korea', "China", "Japan", "Spain", "United Kingdom",
-             "Germany", "Denmark", "Sweden", "Norway", "Netherlands", "Australia", "Austria"]
+             "Germany", "Denmark", "Sweden", "Norway", "Netherlands", "Australia", "Austria", "United States"]
 
 
 # ---- compute predictions data ---- #
