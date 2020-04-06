@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from scipy.optimize import minimize
-from tqdm import tqdm
 import seaborn as sns
 from sklearn.base import BaseEstimator
 import datetime

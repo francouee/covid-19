@@ -2,6 +2,7 @@ import subprocess
 import os
 from pathlib import Path
 import sys
+from tqdm import tqdm
 
 import bokeh.models as bkm
 from bokeh.embed import file_html
