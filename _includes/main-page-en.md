@@ -37,7 +37,7 @@ $$\cdot \ r=$$ the logistic growth rate or steepness of the curve
 
 The model is fitted to minimise the mean squared error (MSE):
 
-$$ (t_0^{\star}, K^{\star}, r^{\star}) \in argmin \sum_{i=1}^{n}\big(y_i - f(t_i)^2\big) $$ 
+$$ (t_0^{\star}, K^{\star}, r^{\star}) \in argmin \sum_{i=1}^{n}\big(y_i - f(t_i)\big)^2 $$ 
 
 When the capacity $$ K $$ is known, this model can be fitted using a linear regression transforming $$ f(t) $$ in  $$ g(t) = logit (\frac{f(t)}{K}) $$. 
 

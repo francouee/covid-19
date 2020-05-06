@@ -35,7 +35,7 @@ $$\cdot \ r=$$ Le taux de croissance de la fonction
 
 Le modèle est ajusté pour minimiser l'erreur quadratique moyenne (MSE):
 
-$$ (t_0^{\star}, K^{\star}, r^{\star}) \in argmin \sum_{i=1}^{n}\big(y_i - f(t_i)^2\big) $$ 
+$$ (t_0^{\star}, K^{\star}, r^{\star}) \in argmin \sum_{i=1}^{n}\big(y_i - f(t_i)\big)^2 $$ 
 
 Quand la capacité K du modèle est connue, le modèle peut être ajusté par régression linéaire en transformant  $$ f(t) $$ en  $$ g(t) = logit (\frac{f(t)}{K}) $$. 
 
