@@ -63,7 +63,7 @@ for country in tqdm(countries, position=0, leave=True):
 
 select, button_prediction, slider, p = bokeh_plot.generate_plot(data, df_all_prediction)
 
-html = file_html(bkm.Column(bkm.Row(select, button_prediction, slider), p,
+html = file_html(bkm.Column(bkm.Row(select, button_prediction, slider, sizing_mode='stretch_width'), p,
                             sizing_mode='stretch_width'), Resources(mode='cdn'), "plot")
 
 html = html.replace("<!DOCTYPE html>", " ")
