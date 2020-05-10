@@ -89,6 +89,7 @@ def generate_plot(data, df_all_prediction):
     p.xaxis.formatter = bkm.formatters.DatetimeTickFormatter(
         days=['%d/%m', '%d%a'], months=['%m/%Y', '%b %Y'])
     p.add_tools(hover_prediction)
+    p.toolbar.active_drag = None
 
     # p.toolbar.active_scroll = p.select_one(bkm.WheelZoomTool)
 
