@@ -1,12 +1,11 @@
 
 
 .bk-root {
-  width: 130%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: -28%;
-  margin-right: -30%;
+  margin: 8px auto;
+  width: 100%;
+  position: relative;
+  display: block;
+
   @include large {
     padding: 2rem 2rem;
     font-size: 1.1rem;
@@ -24,9 +23,6 @@
 .bk-root .bk:before,
 .bk-root .bk:after {
   box-sizing: inherit;
-  margin: 0;
-  border: 0;
-  padding: 0;
   background-image: none;
   font-family: inherit;
   font-size: 100%;

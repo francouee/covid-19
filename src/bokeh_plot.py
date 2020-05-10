@@ -77,10 +77,10 @@ def generate_plot(data, df_all_prediction):
 
     # ----------- #
 
-    p = bkp.figure(y_axis_type="linear", x_axis_type='datetime',
+    p = bkp.figure(y_axis_type="linear", x_axis_type='datetime', sizing_mode='stretch_both',
                    title=f'Covid 19 evolution: {country}', x_axis_label='date',
                    y_axis_label='Total number of Covid 19 cases',
-                   width=1400, tools=[hover, 'pan', 'wheel_zoom', 'reset'],
+                   tools=[hover, 'pan', 'wheel_zoom', 'reset'],
                    x_range=[get_country(data, country).date.min(),
                             get_country(data, country).date.max() + datetime.timedelta(days=1)],
                    y_range=[-get_country(data, country).total_cases.max() * 0.05,
