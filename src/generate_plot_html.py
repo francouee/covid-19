@@ -50,7 +50,9 @@ for country in tqdm(countries, position=0, leave=True):
     print("fit model for " + country + " data")
     df = get_country_and_min_count(data, country)
 
-    fitted_sigmoid_df, paramters_values_sigmoid = compute_moving_predictions(df, n_prediction=90, n_bootstrap=20,
+    n_prediction = df.shape[0]
+
+    fitted_sigmoid_df, paramters_values_sigmoid = compute_moving_predictions(df, n_prediction= n_prediction + 100, n_bootstrap=20,
                                                                              min_data=df.shape[0] - 6, step=1,
                                                                              loss='MSE', linear_proba=True)
     fitted_sigmoid_df["location"] = np.repeat(country, repeats=fitted_sigmoid_df.shape[0])
