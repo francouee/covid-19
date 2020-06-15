@@ -40,7 +40,7 @@ data['date_str'] = data.date.apply(lambda x: x.strftime('%d/%m/%Y'))
 data = data_china_smoothing(data, n_days_smoothing=6, n_cases_true=5000)
 
 df_all_prediction = pd.DataFrame()
-countries = ["France", "Italy"]
+countries = ["France", "Italy", "World"]
 
 
 
