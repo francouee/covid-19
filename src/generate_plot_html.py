@@ -37,7 +37,8 @@ subprocess.call(bashCommand.split(), stdout=subprocess.PIPE)
 data = pd.read_csv(data_path / "ecdc_full_data.csv")
 data = data.rename(
     columns={"Total confirmed cases of COVID-19": "total_cases"})
-data = data[data.location.isin(['World', 'France', 'China'])].dropna()
+data = data[data.location.isin(['World', 'France', 'China', 'United States',
+                                'Sweden', 'Denmark', 'Italy', 'Spain', 'United Kingdom', 'Germany'])].dropna()
 data['date'] = data.date.apply(pd.to_datetime)
 data['date_str'] = data.date.apply(lambda x: x.strftime('%d/%m/%Y'))
 data = data_china_smoothing(data, n_days_smoothing=6, n_cases_true=5000)
