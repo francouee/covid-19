@@ -59,7 +59,7 @@ def generate_plot(data, df_all_prediction):
     # --- define all DataSource needed --- #
 
     source_all = bkm.ColumnDataSource(data)
-    country = 'France'
+    country = 'World'
     source = bkm.ColumnDataSource(get_country(data, country))
 
     source_all_prediction = bkm.ColumnDataSource(df_all_prediction)

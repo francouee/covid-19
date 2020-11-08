@@ -124,7 +124,7 @@ class SigmoidModel(BaseEstimator):
     def fit(self, X: pd.DataFrame):
         """
         Compute the optimum parameters to fit a generalized logistic function
-        on the data and estimate the paramters distribution with boostrap
+        on the data and estimate the parameters distribution with boostrap
 
         Parameters
         ----------
