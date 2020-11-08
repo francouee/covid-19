@@ -1,6 +1,6 @@
 [[package]]
 name = "bokeh"
-version = "2.2.3"
+version = "2.0.0"
 description = "Interactive plots and applications in the browser from Python"
 category = "main"
 optional = false
@@ -10,10 +10,10 @@ python-versions = ">=3.6"
 Jinja2 = ">=2.7"
 numpy = ">=1.11.3"
 packaging = ">=16.8"
-pillow = ">=7.1.0"
+pillow = ">=4.0"
 python-dateutil = ">=2.1"
 PyYAML = ">=3.10"
-tornado = ">=5.1"
+tornado = ">=5"
 typing_extensions = ">=3.7.4"
 
 [[package]]
@@ -257,11 +257,11 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.7.9"
-content-hash = "33b61305b9f91f54f3b8f854e07464276de9d0cd1ba0d68839694362cbb23df8"
+content-hash = "aa949bbaa7580ebc4eecb2732d0340e6b11260f30124bdc65805cbd6964855e5"
 
 [metadata.files]
 bokeh = [
-    {file = "bokeh-2.2.3.tar.gz", hash = "sha256:c4a3f97afe5f525019dd58ee8c4e3d43f53fe1b1ac264ccaae9b02c07b2abc17"},
+    {file = "bokeh-2.0.0.tar.gz", hash = "sha256:552aae6844b2b82dc6da77b17f3f0c22f600c181b4e334f4883624665245ac59"},
 ]
 certifi = [
     {file = "certifi-2020.6.20-py2.py3-none-any.whl", hash = "sha256:8fc0819f1f30ba15bdb34cceffb9ef04d99f420f68eb75d901e9560b8749fc41"},
