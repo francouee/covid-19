@@ -1,6 +1,6 @@
 #!/bin/sh
 
-conda init zsh
+source $HOME/.zshrc
 conda activate covid19
 cd /Users/Francois/Documents/Programmation/Python/Divers/Coronavirus/src
 python generate_plot_html.py
