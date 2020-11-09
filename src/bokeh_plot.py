@@ -93,7 +93,8 @@ def generate_plot(data, df_all_prediction):
 
     # p.toolbar.active_scroll = p.select_one(bkm.WheelZoomTool)
 
-    y_extra_range_max = np.max([np.max(get_country(data, country).new_cases.values), np.max(get_country(data, country).total_deaths.values)])
+    y_extra_range_max = np.max([np.max(get_country(data, country).new_cases.values),
+                                np.max(get_country(data, country).total_deaths.values)])
 
     p.extra_y_ranges = {"Number of deaths": bkm.Range1d(start=-0.05 * y_extra_range_max,
                                                         end=1.1 * y_extra_range_max)}
