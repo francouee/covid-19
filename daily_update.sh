@@ -1,4 +1,5 @@
 #!/bin/sh
+#00 17 * * * /Users/Francois/Documents/Programmation/Python/Divers/Coronavirus/.daily_update.sh
 
 source $HOME/.zshrc
 conda activate covid19
