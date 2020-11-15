@@ -171,169 +171,170 @@ def generate_plot(data, df_all_prediction):
                                       band_low=band_low,
                                       prediction_cases_line=prediction_cases_line,
                                       band_high=band_high), code="""
-                            var country = select.value
-
-                            var date = source_all.data['date']
-                            var date_str = source_all.data['date_str']
-                            var location = source_all.data['location']
-                            var total_cases = source_all.data['total_cases']
-                            var new_cases = source_all.data['new_cases']
-                            var total_deaths = source_all.data['total_deaths']
-                            var new_deaths = source_all.data['new_deaths']
-
-
-                            var new_date = []
-                            var new_date_str = []
-                            var new_total_cases = []
-                            var new_new_cases = []
-                            var new_total_deaths = []
-                            var new_new_deaths = []
-
-
-                            for(var i=0; i < date.length; i++){
-                                if(location[i]==country){
-                                    new_date.push(date[i]);
-                                    new_date_str.push(date_str[i])
-                                    new_total_cases.push(total_cases[i]);
-                                    new_new_cases.push(new_cases[i]);
-                                    new_total_deaths.push(total_deaths[i]);
-                                    new_new_deaths.push(new_deaths[i]);
-                                }
-                            }
-
-                            source.data['date']=new_date;
-                            source.data['date_str']=new_date_str;
-                            source.data['total_cases']=new_total_cases;
-                            source.data['new_cases']=new_new_cases;
-                            source.data['total_deaths']=new_total_deaths;
-                            source.data['new_deaths']=new_new_deaths;
-
-                            const new_cases_no_Nan = new_new_cases.filter(function (value) {
-                                return !Number.isNaN(value);
-                            });
-                            const cases_no_Nan = new_total_cases.filter(function (value) {
-                                return !Number.isNaN(value);
-                            });
-
-                            y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan.concat(new_total_deaths)), 
-                                                "end": 1.1*Math.max.apply(Math, new_cases_no_Nan.concat(new_total_deaths))})
-
-                            y_range_left.setv({"start": -0.05*Math.max.apply(Math, cases_no_Nan), 
-                                               "end": 1.1*Math.max.apply(Math, cases_no_Nan)})
-
-                            x_range.setv({"start": Math.min.apply(Math, new_date), "end": 1.0001*Math.max.apply(Math, new_date)})
-
-                            title.text = "Evolution du nombre de cas en " + country
-
-                            source.change.emit();
-
-
-                            // change value of predictions
-
-                            button_click_count.data.clicks = 0
-
-                            median_prediction.visible = false
-                            band_low.visible = false
-                            band_high.visible = false
-                            prediction_cases_line.visble = false
-
-                            var date_end_prediction = source_all_prediction.data['date_end_train']
-
-                            var location = source_all_prediction.data['location']
-                            var date = source_all_prediction.data['date']
-                            var date_str = source_all_prediction.data['date_str']
-                            var quantile_1 = source_all_prediction.data['25%']
-                            var quantile_2 = source_all_prediction.data['median']
-                            var quantile_3 = source_all_prediction.data['75%']
-                            var new_cases = source_all_prediction.data['derivative']
-                            var median_prediction = source_all_prediction.data['median_display']
-
-                            var new_date = []
-                            var new_date_str = []
-                            var new_date_end_prediction = []
-                            var new_quantile_1 = []
-                            var new_quantile_2 = []
-                            var new_quantile_3 = []
-                            var new_new_cases = []
-                            var new_median_prediction = []
-
-                            for(var i=0; i < quantile_1.length; i++){
-                                if(location[i]==country){
-                                    new_date.push(date[i])
-                                    new_date_str.push(date_str[i])
-                                    new_date_end_prediction.push(date_end_prediction[i])
-                                    new_quantile_1.push(quantile_1[i]);
-                                    new_quantile_2.push(quantile_2[i]);
-                                    new_quantile_3.push(quantile_3[i]);
-                                    new_new_cases.push(new_cases[i]);
-                                    new_median_prediction.push(median_prediction[i]);
-                                }
-                            }   
-                            source_prediction.data['date']=new_date
-                            source_prediction.data['date_str']=new_date_str
-                            source_prediction.data['date_end_train']=new_date_end_prediction
-                            source_prediction.data['25%']=new_quantile_1;
-                            source_prediction.data['median']=new_quantile_2;
-                            source_prediction.data['75%']=new_quantile_3;
-                            source_prediction.data['derivative']=new_new_cases;
-                            source_prediction.data['median_display']=new_median_prediction;
-
-
-                            var n = new_date.length
-                            var max_date = Math.max.apply(Math, new_date_end_prediction)
-
-                            var new_date_bis = []
-                            var new_date_str_bis = []
-                            var new_date_end_prediction_bis = []
-                            var new_quantile_1_bis = []
-                            var new_quantile_2_bis = []
-                            var new_quantile_3_bis = []
-                            var new_new_cases_bis = []
-                            var new_median_prediction_bis = []
-
-                            for(var i=0; i < n; i++){
-                                if(new_date_end_prediction[i]==max_date){
-                                    new_date_bis.push(new_date[i])
-                                    new_date_str_bis.push(new_date_str[i])
-                                    new_date_end_prediction_bis.push(new_date_end_prediction[i])
-                                    new_quantile_1_bis.push(new_quantile_1[i]);
-                                    new_quantile_2_bis.push(new_quantile_2[i]);
-                                    new_quantile_3_bis.push(new_quantile_3[i]);
-                                    new_new_cases_bis.push(new_new_cases[i]);
-                                    new_median_prediction_bis.push(new_median_prediction[i]);
-                                }
-                            }
-
-                            var n = new_date_bis.length
-                            var max_date = Math.max.apply(Math, new_date_end_prediction_bis)
-
-                            source_prediction_end_date.data['date']=new_date_bis
-                            source_prediction_end_date.data['date_str']=new_date_str_bis
-                            source_prediction_end_date.data['date_end_train']=new_date_end_prediction_bis
-                            source_prediction_end_date.data['25%']=new_quantile_1_bis;
-                            source_prediction_end_date.data['median']=new_quantile_2_bis;
-                            source_prediction_end_date.data['75%']=new_quantile_3_bis;
-                            source_prediction_end_date.data['derivative']=new_new_cases_bis;
-                            source_prediction_end_date.data['median_display']=new_median_prediction_bis;
-
-                            source_prediction.change.emit();
-                            source_prediction_end_date.change.emit()
-
-
-
-                            const unique = (value, index, self) => {
-                                       return self.indexOf(value) === index
-                                   }
-
-                            // change slider value
-
-                            slider.setv({"end": new_date_end_prediction.filter(unique).length - 1, "value": 0})
-
-                            """)
+        var country = select.value
+    
+        var date = source_all.data['date']
+        var date_str = source_all.data['date_str']
+        var location = source_all.data['location']
+        var total_cases = source_all.data['total_cases']
+        var new_cases = source_all.data['new_cases']
+        var total_deaths = source_all.data['total_deaths']
+        var new_deaths = source_all.data['new_deaths']
+    
+    
+        var new_date = []
+        var new_date_str = []
+        var new_total_cases = []
+        var new_new_cases = []
+        var new_total_deaths = []
+        var new_new_deaths = []
+    
+    
+        for(var i=0; i < date.length; i++){
+            if(location[i]==country){
+                new_date.push(date[i]);
+                new_date_str.push(date_str[i])
+                new_total_cases.push(total_cases[i]);
+                new_new_cases.push(new_cases[i]);
+                new_total_deaths.push(total_deaths[i]);
+                new_new_deaths.push(new_deaths[i]);
+            }
+        }
+    
+        source.data['date']=new_date;
+        source.data['date_str']=new_date_str;
+        source.data['total_cases']=new_total_cases;
+        source.data['new_cases']=new_new_cases;
+        source.data['total_deaths']=new_total_deaths;
+        source.data['new_deaths']=new_new_deaths;
+    
+        const new_cases_no_Nan = new_new_cases.filter(function (value) {
+            return !Number.isNaN(value);
+        });
+        const cases_no_Nan = new_total_cases.filter(function (value) {
+            return !Number.isNaN(value);
+        });
+    
+        y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan.concat(new_total_deaths)), 
+                            "end": 1.1*Math.max.apply(Math, new_cases_no_Nan.concat(new_total_deaths))})
+    
+        y_range_left.setv({"start": -0.05*Math.max.apply(Math, cases_no_Nan), 
+                           "end": 1.1*Math.max.apply(Math, cases_no_Nan)})
+    
+        x_range.setv({"start": Math.min.apply(Math, new_date), "end": 1.0001*Math.max.apply(Math, new_date)})
+    
+        title.text = "Evolution du nombre de cas en " + country
+    
+        source.change.emit();
+    
+    
+        // change value of predictions
+    
+        button_click_count.data.clicks = 0
+    
+        median_prediction.visible = false
+        band_low.visible = false
+        band_high.visible = false
+        prediction_cases_line.visble = false
+    
+        var date_end_prediction = source_all_prediction.data['date_end_train']
+    
+        var location = source_all_prediction.data['location']
+        var date = source_all_prediction.data['date']
+        var date_str = source_all_prediction.data['date_str']
+        var quantile_1 = source_all_prediction.data['25%']
+        var quantile_2 = source_all_prediction.data['median']
+        var quantile_3 = source_all_prediction.data['75%']
+        var new_cases = source_all_prediction.data['derivative']
+        var median_prediction = source_all_prediction.data['median_display']
+    
+        var new_date = []
+        var new_date_str = []
+        var new_date_end_prediction = []
+        var new_quantile_1 = []
+        var new_quantile_2 = []
+        var new_quantile_3 = []
+        var new_new_cases = []
+        var new_median_prediction = []
+    
+        for(var i=0; i < quantile_1.length; i++){
+            if(location[i]==country){
+                new_date.push(date[i])
+                new_date_str.push(date_str[i])
+                new_date_end_prediction.push(date_end_prediction[i])
+                new_quantile_1.push(quantile_1[i]);
+                new_quantile_2.push(quantile_2[i]);
+                new_quantile_3.push(quantile_3[i]);
+                new_new_cases.push(new_cases[i]);
+                new_median_prediction.push(median_prediction[i]);
+            }
+        }   
+        source_prediction.data['date']=new_date
+        source_prediction.data['date_str']=new_date_str
+        source_prediction.data['date_end_train']=new_date_end_prediction
+        source_prediction.data['25%']=new_quantile_1;
+        source_prediction.data['median']=new_quantile_2;
+        source_prediction.data['75%']=new_quantile_3;
+        source_prediction.data['derivative']=new_new_cases;
+        source_prediction.data['median_display']=new_median_prediction;
+    
+    
+        var n = new_date.length
+        var max_date = Math.max.apply(Math, new_date_end_prediction)
+    
+        var new_date_bis = []
+        var new_date_str_bis = []
+        var new_date_end_prediction_bis = []
+        var new_quantile_1_bis = []
+        var new_quantile_2_bis = []
+        var new_quantile_3_bis = []
+        var new_new_cases_bis = []
+        var new_median_prediction_bis = []
+    
+        for(var i=0; i < n; i++){
+            if(new_date_end_prediction[i]==max_date){
+                new_date_bis.push(new_date[i])
+                new_date_str_bis.push(new_date_str[i])
+                new_date_end_prediction_bis.push(new_date_end_prediction[i])
+                new_quantile_1_bis.push(new_quantile_1[i]);
+                new_quantile_2_bis.push(new_quantile_2[i]);
+                new_quantile_3_bis.push(new_quantile_3[i]);
+                new_new_cases_bis.push(new_new_cases[i]);
+                new_median_prediction_bis.push(new_median_prediction[i]);
+            }
+        }
+    
+        var n = new_date_bis.length
+        var max_date = Math.max.apply(Math, new_date_end_prediction_bis)
+    
+        source_prediction_end_date.data['date']=new_date_bis
+        source_prediction_end_date.data['date_str']=new_date_str_bis
+        source_prediction_end_date.data['date_end_train']=new_date_end_prediction_bis
+        source_prediction_end_date.data['25%']=new_quantile_1_bis;
+        source_prediction_end_date.data['median']=new_quantile_2_bis;
+        source_prediction_end_date.data['75%']=new_quantile_3_bis;
+        source_prediction_end_date.data['derivative']=new_new_cases_bis;
+        source_prediction_end_date.data['median_display']=new_median_prediction_bis;
+    
+        source_prediction.change.emit();
+        source_prediction_end_date.change.emit()
+    
+    
+    
+        const unique = (value, index, self) => {
+                   return self.indexOf(value) === index
+               }
+    
+        // change slider value
+    
+        slider.setv({"end": new_date_end_prediction.filter(unique).length - 1, "value": 0})
+    
+        """
+    )
 
     callback_button = bkm.CustomJS(args=dict(y_axis=p.left, title=p.title), code="""
-    console.log(y_axis)
-    y_axis = LogAxis()
+        console.log(y_axis)
+        y_axis = LogAxis()
     """)
 
     select.js_on_change('value', callback)
@@ -347,63 +348,66 @@ def generate_plot(data, df_all_prediction):
                   band_high=band_high, button_click_count=button_click_count,
                   x_range=p.x_range, y_range_left=p.y_range,
                   y_range_right=p.extra_y_ranges['Number of deaths']), code="""
-                                   // function to get unique value of an array
-                                   const unique = (value, index, self) => {
-                                       return self.indexOf(value) === index
-                                   }
+           // function to get unique value of an array
+           const unique = (value, index, self) => {
+               return self.indexOf(value) === index
+           }
 
-                                   var date = source.data['date'];
-                                   var total_cases = source.data['total_cases'];
-                                   var new_cases = source.data['new_cases'];
-                                   var total_deaths = source.data['total_deaths'];
+           var date = source.data['date'];
+           var total_cases = source.data['total_cases'];
+           var new_cases = source.data['new_cases'];
+           var total_deaths = source.data['total_deaths'];
 
-                                   var date_prediction = source_prediction.data['date'];
-                                   var total_cases_prediction = source_prediction.data['75%'];
+           var date_prediction = source_prediction.data['date'];
+           var total_cases_prediction = source_prediction.data['75%'];
 
-                                   const new_cases_no_Nan = new_cases.filter(function (value) {
-                                       return !Number.isNaN(value);
-                                   });
-                                   const cases_no_Nan = total_cases.filter(function (value) {
-                                       return !Number.isNaN(value);
-                                   });
+           const new_cases_no_Nan = new_cases.filter(function (value) {
+               return !Number.isNaN(value);
+           });
+           const cases_no_Nan = total_cases.filter(function (value) {
+               return !Number.isNaN(value);
+           });
 
-                                   var country = select.value
-                                   button_click_count.data.clicks ++
-                                   var show_prediction = (button_click_count.data.clicks % 2) == 1
+           var country = select.value
+           button_click_count.data.clicks ++
+           var show_prediction = (button_click_count.data.clicks % 2) == 1
 
-                                   var locations_predicted = source_all_prediction.data['location'].filter(unique)
+           var locations_predicted = source_all_prediction.data['location'].filter(unique)
 
-                                   if (locations_predicted.includes(country) == false){
-                                       window.alert("This country doesn't have prediction: Available countries are: " + locations_predicted);
-                                   }
-                                   else{
-                                       if (show_prediction == true){
-                                           median_prediction.visible = true
-                                           band_low.visible = true
-                                           band_high.visible = true
-                                           prediction_cases_line.visble = true
+           if (locations_predicted.includes(country) == false){
+               window.alert("This country doesn't have prediction: Available countries are: " + locations_predicted);
+           }
+           else{
+               if (show_prediction == true){
+                   median_prediction.visible = true
+                   band_low.visible = true
+                   band_high.visible = true
+                   prediction_cases_line.visble = true
+                   const y_range_right_values = [].concat([].slice.call(new_cases_no_Nan), [].slice.call(total_deaths))
 
-                                           y_range_left.setv({"start": -0.05*Math.max.apply(Math, total_cases_prediction), "end": 1.1*Math.max.apply(Math, total_cases_prediction)})
-                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, [].concat(new_cases_no_Nan, total_deaths)) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan),
-                                                               "end": 1.1*Math.max.apply(Math, [].concat(new_cases_no_Nan, total_deaths)) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan)})
+                   y_range_left.setv({"start": -0.05*Math.max.apply(Math, total_cases_prediction), "end": 1.1 * Math.max.apply(Math, total_cases_prediction)})
+                   y_range_right.setv({"start": -0.05*Math.max.apply(Math, y_range_right_values) * Math.max.apply(Math, total_cases_prediction) / Math.max.apply(Math, cases_no_Nan),
+                                       "end": 1.1*Math.max.apply(Math, y_range_right_values) * Math.max.apply(Math, total_cases_prediction) / Math.max.apply(Math, cases_no_Nan)})
 
-                                           x_range.setv({"start": Math.min.apply(Math, date_prediction), "end": 1.0001*Math.max.apply(Math, date_prediction)})
-                                       }
-                                       else{
-                                           median_prediction.visible = false
-                                           band_low.visible = false
-                                           band_high.visible = false
-                                           prediction_cases_line.visble = false
+                   x_range.setv({"start": Math.min.apply(Math, date_prediction), "end": 1.0001*Math.max.apply(Math, date_prediction)})
+               }
+               else{
+                   median_prediction.visible = false
+                   band_low.visible = false
+                   band_high.visible = false
+                   prediction_cases_line.visble = false
+                   const y_range_right_values = [].concat([].slice.call(new_cases_no_Nan), [].slice.call(total_deaths))
 
-                                           y_range_left.setv({"start": -0.05*Math.max.apply(Math, cases_no_Nan), "end": 1.1*Math.max.apply(Math, cases_no_Nan)})
-                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, [].concat(new_cases_no_Nan, total_deaths)), "end": 1.1*Math.max.apply(Math, [].concat(new_cases_no_Nan, total_deaths))})
-                                           x_range.setv({"start": Math.min.apply(Math, date), "end": 1.0001*Math.max.apply(Math, date)})
+                   y_range_left.setv({"start": -0.05*Math.max.apply(Math, cases_no_Nan), "end": 1.1*Math.max.apply(Math, cases_no_Nan)})
+                   y_range_right.setv({"start": -0.05*Math.max.apply(Math, y_range_right_values), "end": 1.1*Math.max.apply(Math, y_range_right_values)})
+                   x_range.setv({"start": Math.min.apply(Math, date), "end": 1.0001*Math.max.apply(Math, date)})
 
-                                       }
-                                   }
+               }
+           }
 
 
-                                   """)
+           """
+    )
 
     button_prediction.js_on_click(callback_button)
 
