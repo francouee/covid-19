@@ -53,7 +53,7 @@ for country in tqdm(countries, position=0, leave=True):
 
     n_prediction = df.shape[0]
 
-    fitted_sigmoid_df, parameters_values_sigmoid = compute_moving_predictions(df, n_prediction=n_prediction + 200,
+    fitted_sigmoid_df, parameters_values_sigmoid = compute_moving_predictions(df, n_prediction=n_prediction + 300,
                                                                               n_bootstrap=5,
                                                                               min_data=df.shape[0] - 10, step=1,
                                                                               loss='MSE', linear_proba=True)
