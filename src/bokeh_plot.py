@@ -384,8 +384,8 @@ def generate_plot(data, df_all_prediction):
                                            prediction_cases_line.visble = true
 
                                            y_range_left.setv({"start": -0.05*Math.max.apply(Math, total_cases_prediction), "end": 1.1*Math.max.apply(Math, total_cases_prediction)})
-                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan.concat(total_deaths)) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan),
-                                                               "end": 1.1*Math.max.apply(Math, new_cases_no_Nan.concat(total_deaths)) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan)})
+                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, [].concat(new_cases_no_Nan, total_deaths)) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan),
+                                                               "end": 1.1*Math.max.apply(Math, [].concat(new_cases_no_Nan, total_deaths)) * Math.max.apply(Math, total_cases_prediction)/Math.max.apply(Math, cases_no_Nan)})
 
                                            x_range.setv({"start": Math.min.apply(Math, date_prediction), "end": 1.0001*Math.max.apply(Math, date_prediction)})
                                        }
@@ -396,7 +396,7 @@ def generate_plot(data, df_all_prediction):
                                            prediction_cases_line.visble = false
 
                                            y_range_left.setv({"start": -0.05*Math.max.apply(Math, cases_no_Nan), "end": 1.1*Math.max.apply(Math, cases_no_Nan)})
-                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, new_cases_no_Nan.concat(total_deaths)), "end": 1.1*Math.max.apply(Math, new_cases_no_Nan.concat(total_deaths))})
+                                           y_range_right.setv({"start": -0.05*Math.max.apply(Math, [].concat(new_cases_no_Nan, total_deaths)), "end": 1.1*Math.max.apply(Math, [].concat(new_cases_no_Nan, total_deaths))})
                                            x_range.setv({"start": Math.min.apply(Math, date), "end": 1.0001*Math.max.apply(Math, date)})
 
                                        }
