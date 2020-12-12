@@ -54,10 +54,23 @@ data = (
     ]
     .loc[
         :,
-        ["date", "location", "new_cases", "total_cases", "new_deaths", "total_deaths"],
+        [
+            "date",
+            "location",
+            "new_cases_smoothed",
+            "total_cases",
+            "new_deaths_smoothed",
+            "total_deaths",
+        ],
     ]
+    .rename(
+        columns={"new_cases_smoothed": "new_cases", "new_deaths_smoothed": "new_deaths"}
+    )
     .dropna()
 )
+data.loc[:, ["new_cases", "new_deaths"]] = data.loc[
+    :, ["new_cases", "new_deaths"]
+].astype("int")
 data["date"] = data.date.apply(pd.to_datetime)
 data["date_str"] = data.date.apply(lambda x: x.strftime("%d/%m/%Y"))
 data = data_china_smoothing(data, n_days_smoothing=6, n_cases_true=5000)
@@ -79,7 +92,7 @@ for country in tqdm(countries, position=0, leave=True):
     fitted_sigmoid_df, parameters_values_sigmoid = compute_moving_predictions(
         df,
         n_prediction=n_prediction + 300,
-        n_bootstrap=10,
+        n_bootstrap=50,
         min_data=df.shape[0] - 10,
         step=1,
         loss="MSE",
