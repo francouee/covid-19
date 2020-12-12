@@ -26,23 +26,46 @@ if os.path.exists(str(data_path) + "/ecdc_full_data.csv"):
     logger.info("Deleting file")
     os.remove(str(data_path) + "/ecdc_full_data.csv")
 
-bashCommand = "wget https://covid.ourworldindata.org/data/ecdc/full_data.csv"
+bashCommand = "wget https://covid.ourworldindata.org/data/owid-covid-data.csv"
 subprocess.call(bashCommand.split(), stdout=subprocess.PIPE)
 
-bashCommand = "mv full_data.csv " + str(data_path) + "/ecdc_full_data.csv"
+bashCommand = "mv owid-covid-data.csv " + str(data_path) + "/ecdc_full_data.csv"
 subprocess.call(bashCommand.split(), stdout=subprocess.PIPE)
 
 # ---- read data ---- #
 
 data = pd.read_csv(data_path / "ecdc_full_data.csv")
-data = data[data.location.isin(['World', 'France', 'China', 'United States',
-                                'Sweden', 'Denmark', 'Italy', 'Spain', 'United Kingdom', 'Germany'])].dropna()
-data['date'] = data.date.apply(pd.to_datetime)
-data['date_str'] = data.date.apply(lambda x: x.strftime('%d/%m/%Y'))
+data = (
+    data[
+        data.location.isin(
+            [
+                "World",
+                "France",
+                "China",
+                "United States",
+                "Sweden",
+                "Denmark",
+                "Italy",
+                "Spain",
+                "United Kingdom",
+                "Germany",
+            ]
+        )
+    ]
+    .loc[
+        :,
+        ["date", "location", "new_cases", "total_cases", "new_deaths", "total_deaths"],
+    ]
+    .dropna()
+)
+data["date"] = data.date.apply(pd.to_datetime)
+data["date_str"] = data.date.apply(lambda x: x.strftime("%d/%m/%Y"))
 data = data_china_smoothing(data, n_days_smoothing=6, n_cases_true=5000)
 
 df_all_prediction = pd.DataFrame()
-countries = ["World", ]
+countries = [
+    "World",
+]
 
 
 # ---- compute predictions data ---- #
@@ -53,11 +76,18 @@ for country in tqdm(countries, position=0, leave=True):
 
     n_prediction = df.shape[0]
 
-    fitted_sigmoid_df, parameters_values_sigmoid = compute_moving_predictions(df, n_prediction=n_prediction + 300,
-                                                                              n_bootstrap=10,
-                                                                              min_data=df.shape[0] - 10, step=1,
-                                                                              loss='MSE', linear_proba=True)
-    fitted_sigmoid_df["location"] = np.repeat(country, repeats=fitted_sigmoid_df.shape[0])
+    fitted_sigmoid_df, parameters_values_sigmoid = compute_moving_predictions(
+        df,
+        n_prediction=n_prediction + 300,
+        n_bootstrap=10,
+        min_data=df.shape[0] - 10,
+        step=1,
+        loss="MSE",
+        linear_proba=True,
+    )
+    fitted_sigmoid_df["location"] = np.repeat(
+        country, repeats=fitted_sigmoid_df.shape[0]
+    )
 
     df_all_prediction = pd.concat([df_all_prediction, fitted_sigmoid_df])
 
@@ -66,12 +96,19 @@ for country in tqdm(countries, position=0, leave=True):
 
 select, button_prediction, slider, p = bokeh_plot.generate_plot(data, df_all_prediction)
 
-html = file_html(bkm.Column(bkm.Row(select, button_prediction, slider, sizing_mode='stretch_width'), p,
-                            sizing_mode='stretch_width'), Resources(mode='cdn'), "plot")
+html = file_html(
+    bkm.Column(
+        bkm.Row(select, button_prediction, slider, sizing_mode="stretch_width"),
+        p,
+        sizing_mode="stretch_width",
+    ),
+    Resources(mode="cdn"),
+    "plot",
+)
 
 html = html.replace("<!DOCTYPE html>", " ")
 
-with open("plot.html", 'w') as f:
+with open("plot.html", "w") as f:
     f.write(html)
 
 bashCommand = "mv plot.html " + str(includes_path) + "/plot.html"

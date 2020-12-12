@@ -12,7 +12,7 @@ includes_path = pathlib.Path("../_includes/")
 
 
 def generate_plot(data, df_all_prediction):
-    COLORS = d3['Category10'][10]
+    COLORS = d3["Category10"][10]
 
     tooltips = f"""
             <div>
@@ -35,116 +35,214 @@ def generate_plot(data, df_all_prediction):
             </div>
         """
 
-    tooltips_predictions = f"""
+    tooltips_predictions = (
+        f"""
             <div>
                 <p>
                     <span style="font-size: 12px; color: black;font-family:century gothic;">Prédiction nombre de cas : </span>
                     <span style="font-size: 12px; color: {COLORS[0]}; font-weight: bold;font-family:century gothic;">@median_display</span>
                 <br> 
                     <span style="font-size: 12px; color: black;font-family:century gothic;">Date : </span>
-                    <span style="font-size: 12px; color: black; font-weight: bold;font-family:century gothic;">""" + """@date_str</span>
+                    <span style="font-size: 12px; color: black; font-weight: bold;font-family:century gothic;">"""
+        + """@date_str</span>
                 </p>
             </div>
         """
+    )
 
-    hover = bkm.tools.HoverTool(names=['line_total'],
-                                tooltips=tooltips,
-                                mode='vline'
-                                )
+    hover = bkm.tools.HoverTool(names=["line_total"], tooltips=tooltips, mode="vline")
 
-    hover_prediction = bkm.tools.HoverTool(names=['prediction'],
-                                           tooltips=tooltips_predictions,
-                                           )
+    hover_prediction = bkm.tools.HoverTool(
+        names=["prediction"],
+        tooltips=tooltips_predictions,
+    )
 
     # --- define all DataSource needed --- #
 
     source_all = bkm.ColumnDataSource(data)
-    country = 'World'
+    country = "World"
     source = bkm.ColumnDataSource(get_country(data, country))
 
     source_all_prediction = bkm.ColumnDataSource(df_all_prediction)
-    source_prediction = bkm.ColumnDataSource(
-        get_country(df_all_prediction, country))
+    source_prediction = bkm.ColumnDataSource(get_country(df_all_prediction, country))
 
-    date_end_training = np.unique(get_country(
-        df_all_prediction, country)["date_end_train"])[-1]
-    source_prediction_end_date = bkm.ColumnDataSource(get_country(df_all_prediction, country)[
-                                                      get_country(df_all_prediction,
-                                                                  country).date_end_train == date_end_training])
+    date_end_training = np.unique(
+        get_country(df_all_prediction, country)["date_end_train"]
+    )[-1]
+    source_prediction_end_date = bkm.ColumnDataSource(
+        get_country(df_all_prediction, country)[
+            get_country(df_all_prediction, country).date_end_train == date_end_training
+        ]
+    )
 
-    slider = bkm.Slider(start=0, end=len(np.unique(get_country(df_all_prediction, country)["date_end_train"])) - 1,
-                        value=0, step=1, title="Days dropped for prediction")
+    slider = bkm.Slider(
+        start=0,
+        end=len(np.unique(get_country(df_all_prediction, country)["date_end_train"]))
+        - 1,
+        value=0,
+        step=1,
+        title="Days dropped for prediction",
+    )
 
     # ----------- #
 
-    p = bkp.figure(y_axis_type="linear", x_axis_type='datetime', sizing_mode='stretch_both',
-                   title=f'Covid 19 evolution: {country}', x_axis_label='date',
-                   y_axis_label='Total number of Covid 19 cases',
-                   tools=[hover, 'pan', 'wheel_zoom', 'reset'],
-                   x_range=[get_country(data, country).date.min(),
-                            get_country(data, country).date.max() + datetime.timedelta(days=1)],
-                   y_range=[-get_country(data, country).total_cases.max() * 0.05,
-                            get_country(data, country).total_cases.max() * 1.1])
-    p.yaxis.formatter = bkm.formatters.NumeralTickFormatter(format='0,0')
+    p = bkp.figure(
+        y_axis_type="linear",
+        x_axis_type="datetime",
+        sizing_mode="stretch_both",
+        title=f"Covid 19 evolution: {country}",
+        x_axis_label="date",
+        y_axis_label="Total number of Covid 19 cases",
+        tools=[hover, "pan", "wheel_zoom", "reset"],
+        x_range=[
+            get_country(data, country).date.min(),
+            get_country(data, country).date.max() + datetime.timedelta(days=1),
+        ],
+        y_range=[
+            -get_country(data, country).total_cases.max() * 0.05,
+            get_country(data, country).total_cases.max() * 1.1,
+        ],
+    )
+    p.yaxis.formatter = bkm.formatters.NumeralTickFormatter(format="0,0")
     p.xaxis.formatter = bkm.formatters.DatetimeTickFormatter(
-        days=['%d/%m', '%d%a'], months=['%m/%Y', '%b %Y'])
+        days=["%d/%m", "%d%a"], months=["%m/%Y", "%b %Y"]
+    )
     p.add_tools(hover_prediction)
     p.toolbar.active_drag = None
 
     # p.toolbar.active_scroll = p.select_one(bkm.WheelZoomTool)
 
-    y_extra_range_max = np.max([np.max(get_country(data, country).new_cases.values),
-                                np.max(get_country(data, country).total_deaths.values)])
+    y_extra_range_max = np.max(
+        [
+            np.max(get_country(data, country).new_cases.values),
+            np.max(get_country(data, country).total_deaths.values),
+        ]
+    )
 
-    p.extra_y_ranges = {"Number of deaths": bkm.Range1d(start=-0.05 * y_extra_range_max,
-                                                        end=1.1 * y_extra_range_max)}
-    p.add_layout(bkm.LinearAxis(y_range_name="Number of deaths", axis_label="New Covid 19 cases",
-                                formatter=bkm.formatters.NumeralTickFormatter(format='0,0')), 'right')
+    p.extra_y_ranges = {
+        "Number of deaths": bkm.Range1d(
+            start=-0.05 * y_extra_range_max, end=1.1 * y_extra_range_max
+        )
+    }
+    p.add_layout(
+        bkm.LinearAxis(
+            y_range_name="Number of deaths",
+            axis_label="New Covid 19 cases",
+            formatter=bkm.formatters.NumeralTickFormatter(format="0,0"),
+        ),
+        "right",
+    )
 
     # --- plot total cases --- #
 
-    p.line(source=source, x='date', y='total_cases', name='line_total', color=COLORS[0], legend_label='total cases',
-           muted_alpha=0.1)
-    p.circle(source=source, x='date', y='total_cases',
-             color=COLORS[0], muted_alpha=0.1)
+    p.line(
+        source=source,
+        x="date",
+        y="total_cases",
+        name="line_total",
+        color=COLORS[0],
+        legend_label="total cases",
+        muted_alpha=0.1,
+    )
+    p.circle(source=source, x="date", y="total_cases", color=COLORS[0], muted_alpha=0.1)
 
     # --- plot new cases --- #
 
-    p.vbar(source=source, x='date', top='new_cases', color=COLORS[1], width=50e6, alpha=0.5, name='bar',
-           y_range_name="Number of deaths", legend_label='new cases', muted_alpha=0.1)
+    p.vbar(
+        source=source,
+        x="date",
+        top="new_cases",
+        color=COLORS[1],
+        width=50e6,
+        alpha=0.5,
+        name="bar",
+        y_range_name="Number of deaths",
+        legend_label="new cases",
+        muted_alpha=0.1,
+    )
 
     # --- plot total death --- #
 
-    p.line(source=source, x='date', y='total_deaths', color=COLORS[3], y_range_name="Number of deaths",
-           name='line_death', legend_label='total deaths', muted_alpha=0.1)
-    p.circle(source=source, x='date', y='total_deaths', color=COLORS[3], y_range_name="Number of deaths",
-             muted_alpha=0.1)
+    p.line(
+        source=source,
+        x="date",
+        y="total_deaths",
+        color=COLORS[3],
+        y_range_name="Number of deaths",
+        name="line_death",
+        legend_label="total deaths",
+        muted_alpha=0.1,
+    )
+    p.circle(
+        source=source,
+        x="date",
+        y="total_deaths",
+        color=COLORS[3],
+        y_range_name="Number of deaths",
+        muted_alpha=0.1,
+    )
 
     # --- plot new death --- #
 
-    p.vbar(source=source, x='date', top='new_deaths', color=COLORS[5], width=50e6, alpha=0.5,
-           y_range_name="Number of deaths", legend_label='new deaths', muted_alpha=0.1)
+    p.vbar(
+        source=source,
+        x="date",
+        top="new_deaths",
+        color=COLORS[5],
+        width=50e6,
+        alpha=0.5,
+        y_range_name="Number of deaths",
+        legend_label="new deaths",
+        muted_alpha=0.1,
+    )
 
     button_click_count = bkm.ColumnDataSource({"clicks": [0]})
 
-    select = bkm.Select(title="Country: ", value=country,
-                        options=list(data.location.unique()))
-    button_log = bkm.Button(label="Log Scale", button_type='primary')
+    select = bkm.Select(
+        title="Country: ", value=country, options=list(data.location.unique())
+    )
+    button_log = bkm.Button(label="Log Scale", button_type="primary")
 
     # --- Predictions --- #
 
-    median_prediction = p.line(source=source_prediction_end_date, x='date', y='median', line_color=COLORS[0],
-                               name='prediction')
-    prediction_cases_line = p.line(source=source_prediction_end_date, x='date', y='derivative', color=COLORS[1],
-                                   y_range_name="Number of deaths")
+    median_prediction = p.line(
+        source=source_prediction_end_date,
+        x="date",
+        y="median",
+        line_color=COLORS[0],
+        name="prediction",
+    )
+    prediction_cases_line = p.line(
+        source=source_prediction_end_date,
+        x="date",
+        y="derivative",
+        color=COLORS[1],
+        y_range_name="Number of deaths",
+    )
 
-    band_low = bkm.Band(source=source_prediction_end_date, base='date', lower='25%', upper='median',
-                        fill_color=COLORS[0],
-                        level='underlay', fill_alpha=0.1, line_width=0.5, line_color='black')
+    band_low = bkm.Band(
+        source=source_prediction_end_date,
+        base="date",
+        lower="25%",
+        upper="median",
+        fill_color=COLORS[0],
+        level="underlay",
+        fill_alpha=0.1,
+        line_width=0.5,
+        line_color="black",
+    )
 
-    band_high = bkm.Band(source=source_prediction_end_date, base='date', lower='median', upper='75%',
-                         fill_color=COLORS[0],
-                         level='underlay', fill_alpha=0.1, line_width=0.5, line_color='black')
+    band_high = bkm.Band(
+        source=source_prediction_end_date,
+        base="date",
+        lower="median",
+        upper="75%",
+        fill_color=COLORS[0],
+        level="underlay",
+        fill_alpha=0.1,
+        line_width=0.5,
+        line_color="black",
+    )
 
     median_prediction.visible = False
     prediction_cases_line.visible = False
@@ -154,23 +252,30 @@ def generate_plot(data, df_all_prediction):
     p.add_layout(band_low)
     p.add_layout(band_high)
 
-    button_prediction = bkm.Button(
-        label="Show predictions", button_type="primary")
+    button_prediction = bkm.Button(label="Show predictions", button_type="primary")
 
     # -- Callback -- #
 
-    callback = bkm.CustomJS(args=dict(source=source, source_all=source_all, select=select, x_range=p.x_range,
-                                      y_range_left=p.y_range, y_range_right=p.extra_y_ranges[
-                                          'Number of deaths'],
-                                      title=p.title,
-                                      button_click_count=button_click_count, slider=slider,
-                                      source_all_prediction=source_all_prediction,
-                                      source_prediction=source_prediction,
-                                      source_prediction_end_date=source_prediction_end_date,
-                                      median_prediction=median_prediction,
-                                      band_low=band_low,
-                                      prediction_cases_line=prediction_cases_line,
-                                      band_high=band_high), code="""
+    callback = bkm.CustomJS(
+        args=dict(
+            source=source,
+            source_all=source_all,
+            select=select,
+            x_range=p.x_range,
+            y_range_left=p.y_range,
+            y_range_right=p.extra_y_ranges["Number of deaths"],
+            title=p.title,
+            button_click_count=button_click_count,
+            slider=slider,
+            source_all_prediction=source_all_prediction,
+            source_prediction=source_prediction,
+            source_prediction_end_date=source_prediction_end_date,
+            median_prediction=median_prediction,
+            band_low=band_low,
+            prediction_cases_line=prediction_cases_line,
+            band_high=band_high,
+        ),
+        code="""
         var country = select.value
     
         var date = source_all.data['date']
@@ -329,25 +434,38 @@ def generate_plot(data, df_all_prediction):
     
         slider.setv({"end": new_date_end_prediction.filter(unique).length - 1, "value": 0})
     
-        """
+        """,
     )
 
-    callback_button = bkm.CustomJS(args=dict(y_axis=p.left, title=p.title), code="""
+    callback_button = bkm.CustomJS(
+        args=dict(y_axis=p.left, title=p.title),
+        code="""
         console.log(y_axis)
         y_axis = LogAxis()
-    """)
+    """,
+    )
 
-    select.js_on_change('value', callback)
+    select.js_on_change("value", callback)
     button_log.js_on_click(callback_button)
 
     callback_button = bkm.CustomJS(
-        args=dict(source=source, source_prediction=source_prediction, source_all_prediction=source_all_prediction,
-                  source_prediction_end_date=source_prediction_end_date, select=select,
-                  button_prediction=button_prediction, median_prediction=median_prediction, band_low=band_low,
-                  prediction_cases_line=prediction_cases_line,
-                  band_high=band_high, button_click_count=button_click_count,
-                  x_range=p.x_range, y_range_left=p.y_range,
-                  y_range_right=p.extra_y_ranges['Number of deaths']), code="""
+        args=dict(
+            source=source,
+            source_prediction=source_prediction,
+            source_all_prediction=source_all_prediction,
+            source_prediction_end_date=source_prediction_end_date,
+            select=select,
+            button_prediction=button_prediction,
+            median_prediction=median_prediction,
+            band_low=band_low,
+            prediction_cases_line=prediction_cases_line,
+            band_high=band_high,
+            button_click_count=button_click_count,
+            x_range=p.x_range,
+            y_range_left=p.y_range,
+            y_range_right=p.extra_y_ranges["Number of deaths"],
+        ),
+        code="""
            // function to get unique value of an array
            const unique = (value, index, self) => {
                return self.indexOf(value) === index
@@ -406,17 +524,26 @@ def generate_plot(data, df_all_prediction):
            }
 
 
-           """
+           """,
     )
 
     button_prediction.js_on_click(callback_button)
 
     callback_slider = bkm.CustomJS(
-        args=dict(source=source, source_prediction=source_prediction, source_all_prediction=source_all_prediction,
-                  source_prediction_end_date=source_prediction_end_date, select=select,
-                  prediction_cases_line=prediction_cases_line, slider=slider, button_click_count=button_click_count,
-                  x_range=p.x_range, y_range_left=p.y_range,
-                  y_range_right=p.extra_y_ranges['Number of deaths']), code="""
+        args=dict(
+            source=source,
+            source_prediction=source_prediction,
+            source_all_prediction=source_all_prediction,
+            source_prediction_end_date=source_prediction_end_date,
+            select=select,
+            prediction_cases_line=prediction_cases_line,
+            slider=slider,
+            button_click_count=button_click_count,
+            x_range=p.x_range,
+            y_range_left=p.y_range,
+            y_range_right=p.extra_y_ranges["Number of deaths"],
+        ),
+        code="""
 
                            // function to get unique value of an array
                            const unique = (value, index, self) => {
@@ -491,9 +618,10 @@ def generate_plot(data, df_all_prediction):
 
                            }
 
-                                   """)
+                                   """,
+    )
 
-    slider.js_on_change('value', callback_slider)
+    slider.js_on_change("value", callback_slider)
 
     p.legend.location = "top_left"
     p.legend.click_policy = "mute"
